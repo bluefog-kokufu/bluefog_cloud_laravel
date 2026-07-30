@@ -10,6 +10,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::connection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
         $tableComments = [
             'users' => 'ログイン画面・ダッシュボードで利用する認証ユーザー情報',
             'companies' => '会計・消費税設定画面で利用する会社情報',

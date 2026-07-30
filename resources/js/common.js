@@ -97,4 +97,13 @@ function show(page){
 document.querySelectorAll("#sideNav a").forEach(a=>a.onclick=()=>show(a.dataset.page));
 function crumb(label){return `<div class="crumb"><a onclick="show('home')">ホーム</a> / ${label}</div>`;}
 
+/* ================= clock ================= */
+function tickClock(){
+  const el=document.getElementById("clockTime");if(!el)return;
+  const d=new Date(),p=x=>String(x).padStart(2,"0");
+  el.textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  document.getElementById("clockDate").textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${"日月火水木金土"[d.getDay()]})`;
+}
+setInterval(tickClock,1000);tickClock();
+
 

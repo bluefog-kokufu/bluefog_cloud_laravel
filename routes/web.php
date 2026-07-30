@@ -17,5 +17,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('admin/notices', \App\Http\Controllers\Admin\NoticeController::class)->names('admin.notices');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

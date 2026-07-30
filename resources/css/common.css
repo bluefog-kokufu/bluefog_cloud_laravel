@@ -30,7 +30,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid #7fb3d9;border-color:#
 .btn.accent:hover{background:#166571}
 .btn.danger{background:#fff;color:var(--danger);border:1px solid var(--danger)}
 /* ---------- app layout ---------- */
-#app{display:none;min-height:100vh}
+#app{display:block;min-height:100vh}
 header.topbar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);padding:10px 20px;position:sticky;top:0;z-index:20}
 .brand{font-weight:700;font-size:18px;color:var(--navy);display:flex;align-items:center;gap:8px}
 .brand .mark{width:22px;height:22px;border-radius:4px;background:linear-gradient(135deg,var(--teal) 50%,#9fd8de 50%)}

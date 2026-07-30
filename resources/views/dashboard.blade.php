@@ -1,26 +1,59 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ダッシュボード - Bluefog Cloud</title>
-    <style>
-        body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;background:#eef2ff;color:#0f172a;min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0}
-        .panel{width:100%;max-width:720px;padding:32px;background:#fff;border:1px solid #c7d2fe;border-radius:16px;box-shadow:0 18px 50px rgba(99,102,241,.12)}
-        h1{margin-top:0;font-size:28px;color:#312e81}
-        p{margin:0 0 16px;color:#475569}
-        form{display:inline}
-        .btn{padding:12px 18px;border:none;border-radius:12px;background:#4338ca;color:#fff;font-weight:700;cursor:pointer}
-    </style>
-</head>
-<body>
-    <div class="panel">
-        <h1>Bluefog Cloud ダッシュボード</h1>
-        <p>ログインに成功しました。ここから業務系システムの画面に移動できます。</p>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="btn">ログアウト</button>
-        </form>
+@extends('layouts.app')
+
+@section('content')
+<h2 class="pagettl">マイページトップ</h2>
+<div class="cards">
+    <div class="stat">
+        <div class="t">登録顧客数</div>
+        <div class="v">${db.customers.length} 社</div>
     </div>
-</body>
-</html>
+    <div class="stat">
+        <div class="t">今月の売上(税抜)</div>
+        <div class="v">${yen(ms)}</div>
+    </div>
+    <div class="stat">
+        <div class="t">未回収売掛金(税込)</div>
+        <div class="v">${yen(ar)}</div>
+    </div>
+    <div class="stat">
+        <div class="t">未払買掛金(税込)</div>
+        <div class="v">${yen(ap)}</div>
+    </div>
+</div>
+<div class="panel">
+    <div class="card">
+        <b style="color:var(--navy)">お知らせ</b>
+        <ul class="notice" style="margin-top:8px">
+            @foreach ($notices as $notice)
+            <li>
+                <span class="d">{{ $notice['date'] }}</span>
+                @if (! empty($notice['link']))
+                <a href="{{ $notice['link'] }}" target="_blank">
+                    <b>{{ $notice['title'] }}</b>
+                    @if (! empty($notice['message']))
+                    — {{ $notice['message'] }}
+                    @endif
+                </a>
+                @if (! empty($notice['pdf']))
+                <a href="{{ $notice['pdf'] }}" target="_blank" class="muted">(PDF版)</a>
+                @endif
+                @else
+                {{ $notice['title'] }}
+                @endif
+            </li>
+            @endforeach
+        </ul>
+    </div>
+    <div class="card">
+        <b style="color:var(--navy)">クイックメニュー</b>
+        <div class="toolbar" style="margin-top:10px">
+            <button class="btn accent small" onclick="show('customers')">顧客管理</button>
+            <button class="btn accent small" onclick="show('sales')">取引管理(売上)</button>
+            <button class="btn accent small" onclick="show('purchases')">取引書類(仕入)</button>
+            <button class="btn accent small" onclick="show('ledger')">総勘定元帳</button>
+            <button class="btn accent small" onclick="show('bs')">財務三表</button>
+            <a class="btn ghost small" href="{{ route('admin.notices.index') }}">お知らせ管理</a>
+        </div>
+    </div>
+</div>
+@endsection

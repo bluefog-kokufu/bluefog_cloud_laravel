@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Notice;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,10 +18,35 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Bluefog Cloud Admin',
-            'email' => 'user@user.com',
-            'password' => bcrypt('password'),
+        User::firstOrCreate(
+            ['email' => 'user@user.com'],
+            [
+                'name' => 'Bluefog Cloud Admin',
+                'password' => bcrypt('password'),
+            ]
+        );
+
+        Notice::create([
+            'published_at' => '2026-07-23',
+            'title' => '操作マニュアルのお知らせ',
+            'content' => 'ユーザー利用マニュアルはこちら',
+            'link' => 'manual.html',
+            'pdf_link' => 'manual.pdf',
+        ]);
+
+        Notice::create([
+            'published_at' => '2026-07-01',
+            'title' => '電子帳簿保存法対応:タイムスタンプ付与機能を更新しました。',
+        ]);
+
+        Notice::create([
+            'published_at' => '2026-06-15',
+            'title' => 'インボイス(適格請求書)テンプレートを更新しました。',
+        ]);
+
+        Notice::create([
+            'published_at' => '2026-05-10',
+            'title' => '財務三表のCSV保存機能を追加しました。',
         ]);
     }
 }
