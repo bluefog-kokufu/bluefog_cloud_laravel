@@ -76,6 +76,8 @@ table.list tr:hover td{background:#f4f8fd}
 .req{background:var(--danger);color:#fff;font-size:10px;border-radius:3px;padding:1px 5px;margin-right:6px;vertical-align:middle}
 .field{margin-bottom:14px;max-width:560px}
 .field>label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:5px}
+.field-error{margin-top:6px;color:var(--danger);font-size:12px}
+.success-inline{margin:0 0 14px;padding:10px 12px;border-radius:6px;background:#e8f7ee;color:#1d7a45;border:1px solid #b9e3c6;font-size:13px}
 .formfoot{display:flex;gap:10px;margin-top:18px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}

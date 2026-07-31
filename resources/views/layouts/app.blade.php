@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bluefog Cloud</title>
     @vite(['resources/css/app.css'])
 </head>
@@ -49,7 +50,7 @@
                 <a data-page="m_insurers">保険会社情報</a>
                 <div class="navttl">設定</div>
                 <a data-page="settings">会計・消費税設定</a>
-                <a data-page="profile">プロフィール</a>
+                <a data-page="profile" href="{{ route('profile') }}">プロフィール</a>
             </nav>
             <main id="page">
                 @yield('content')
