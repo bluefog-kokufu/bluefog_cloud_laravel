@@ -16,7 +16,10 @@
             <div class="userbox">
                 <a class="manual-link" href="manual.html" target="_blank" title="ユーザー利用マニュアルを開く">📖 操作マニュアル</a>
                 <span id="userLabel"></span>
-                <button class="btn ghost small" onclick="logout()">ログアウト</button>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="btn ghost small">ログアウト</button>
+                </form>
             </div>
         </header>
         <div class="layout">
