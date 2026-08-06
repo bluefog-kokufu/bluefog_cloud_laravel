@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / 顧客一覧</div>
+@if (session('status'))
+<div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
+@endif
 <h2 class="pagettl">顧客一覧</h2>
 <div class="panel">
     <form method="GET" action="{{ route('customer') }}" class="toolbar" style="gap:8px; align-items:center;">
@@ -12,11 +15,13 @@
         <button class="btn ghost small" type="button" onclick="alert('顧客作成機能は未実装です。')">顧客作成</button>
     </form>
 
-    <div class="csvbar">
-        <button class="btn yellow small" type="button" onclick="alert('CSVエクスポート機能は未実装です。')">⬇ データのエクスポート(CSV)</button>
-        <button class="btn blue small" type="button" onclick="alert('CSVインポート機能は未実装です。')">⬆ CSVインポート</button>
-        <button class="btn green small" type="button" onclick="alert('CSVテンプレート機能は未実装です。')">⬇ CSVテンプレート</button>
-    </div>
+    <form method="POST" action="{{ route('customer.import') }}" enctype="multipart/form-data" class="csvbar">
+        @csrf
+        <a class="btn yellow small" href="{{ route('customer.export') }}">⬇ データのエクスポート(CSV)</a>
+        <button class="btn blue small" type="button" onclick="document.getElementById('customerCsvFile').click()">⬆ CSVインポート</button>
+        <input type="file" id="customerCsvFile" name="csv_file" accept=".csv" style="display:none" onchange="this.form.submit()">
+        <a class="btn green small" href="{{ route('customer.template') }}">⬇ CSVテンプレート</a>
+    </form>
 
     <div class="card" style="overflow-x:auto">
         <table class="list">

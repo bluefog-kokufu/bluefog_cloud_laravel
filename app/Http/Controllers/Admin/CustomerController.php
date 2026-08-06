@@ -7,6 +7,7 @@ use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerController extends Controller
 {
@@ -28,6 +29,120 @@ class CustomerController extends Controller
             ->withQueryString();
 
         return view('admin.customers.index', compact('customers', 'query'));
+    }
+
+    public function template(): StreamedResponse
+    {
+        $filename = '顧客一覧_テンプレート.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () {
+            $out = fopen('php://output', 'w');
+            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($out, ['会社名', '顧客タイプ', '郵便番号', '都道府県', '住所(市区町村・丁番地)', '住所2(建物名・部屋番号)', '電話番号', '携帯電話番号', 'ファックス番号', 'ウェブサイトURL', '担当者名', 'メールアドレス', 'メモ']);
+            fputcsv($out, ['サンプル株式会社', '両方で使用する', '100-0001', '東京都', '千代田区1-1-1', '', '03-0000-0000', '090-0000-0000', '03-0000-0001', 'https://example.com', '山田 太郎', 'info@sample.co.jp', '']);
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function export(): StreamedResponse
+    {
+        $filename = '顧客一覧.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () {
+            $out = fopen('php://output', 'w');
+            // UTF-8 BOM
+            fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            // header
+            fputcsv($out, ['会社名', '顧客タイプ', '郵便番号', '都道府県', '住所(市区町村・丁番地)', '住所2(建物名・部屋番号)', '電話番号', '携帯電話番号', 'ファックス番号', 'ウェブサイトURL', '担当者名', 'メールアドレス', 'メモ']);
+            // rows
+            foreach (Customer::orderBy('name')->get() as $c) {
+                fputcsv($out, [
+                    $c->name,
+                    $c->type ?? '',
+                    $c->zip ?? '',
+                    $c->pref ?? '',
+                    $c->addr1 ?? '',
+                    $c->addr2 ?? '',
+                    $c->tel ?? '',
+                    $c->mobile ?? '',
+                    $c->fax ?? '',
+                    $c->url ?? '',
+                    $c->person ?? '',
+                    $c->email ?? '',
+                    $c->memo ?? '',
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt'],
+        ]);
+
+        $file = $request->file('csv_file');
+        $added = 0;
+
+        if (($handle = fopen($file->getRealPath(), 'r')) === false) {
+            return redirect()->route('customer')->with('status', 'CSVファイルを読み込めませんでした。');
+        }
+
+        $first = true;
+        while (($row = fgetcsv($handle)) !== false) {
+            if ($first) {
+                $first = false;
+                $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', $row[0]);
+                if (isset($row[0]) && $row[0] === '会社名') {
+                    continue;
+                }
+            }
+
+            $name = trim((string) ($row[0] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+
+            $data = [
+                'name' => $name,
+                'type' => in_array($row[1] ?? '', ['受注取引管理', '発注取引管理', '両方で使用する'], true) ? $row[1] : '両方で使用する',
+                'zip' => $row[2] ?? '',
+                'pref' => $row[3] ?? '',
+                'addr1' => $row[4] ?? '',
+                'addr2' => $row[5] ?? '',
+                'tel' => $row[6] ?? '',
+                'mobile' => $row[7] ?? '',
+                'fax' => $row[8] ?? '',
+                'url' => $row[9] ?? '',
+                'person' => $row[10] ?? '',
+                'email' => $row[11] ?? '',
+                'memo' => $row[12] ?? '',
+            ];
+            // 新規のみ追加。既存の顧客は更新せずスキップする。
+            $exists = Customer::where('name', $name)->exists();
+            if ($exists) {
+                continue;
+            }
+            Customer::create($data);
+            $added++;
+        }
+
+        fclose($handle);
+
+        return redirect()->route('customer')->with('status', "インポート完了: 新規{$added}件");
     }
 
     /*
