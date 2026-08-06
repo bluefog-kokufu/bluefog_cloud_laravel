@@ -59,6 +59,41 @@ class CustomerController extends Controller
         return redirect()->route('customer')->with('status', '顧客を作成しました。');
     }
 
+    public function edit(Customer $customer): string
+    {
+        return view('admin.customers.modal_edit', compact('customer'))->render();
+    }
+
+    public function update(Request $request, Customer $customer): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
+            'zip' => ['nullable', 'string', 'max:20'],
+            'pref' => ['nullable', 'string', 'max:50'],
+            'addr1' => ['nullable', 'string', 'max:255'],
+            'addr2' => ['nullable', 'string', 'max:255'],
+            'tel' => ['nullable', 'string', 'max:50'],
+            'mobile' => ['nullable', 'string', 'max:50'],
+            'fax' => ['nullable', 'string', 'max:50'],
+            'url' => ['nullable', 'string', 'max:255'],
+            'person' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'memo' => ['nullable', 'string'],
+        ]);
+
+        $customer->update($data);
+
+        return redirect()->route('customer')->with('status', '顧客を更新しました。');
+    }
+
+    public function destroy(Customer $customer)
+    {
+        $customer->delete();
+
+        return response()->json(['status' => 'deleted']);
+    }
+
     public function template(): StreamedResponse
     {
         $filename = '顧客一覧_テンプレート.csv';

@@ -44,8 +44,8 @@
                     <td>{{ $customer->person ?? '-' }}</td>
                     <td>{{ $customer->email ?? '-' }}</td>
                     <td>
-                        <button class="icon-btn" title="編集" type="button" onclick="alert('編集機能は未実装です。')">✎</button>
-                        <button class="icon-btn" title="削除" type="button" onclick="alert('削除機能は未実装です。')">🗑</button>
+                        <button class="icon-btn" title="編集" type="button" onclick="customerEdit('{{ $customer->id }}')">✎</button>
+                        <button class="icon-btn" title="削除" type="button" onclick="customerDelete('{{ $customer->id }}')">🗑</button>
                     </td>
                 </tr>
                 @empty

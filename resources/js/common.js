@@ -70,6 +70,43 @@ function csvDownload(filename, rows){
 }
 function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");}
 function closeModal(){$("#modalBg").classList.remove("open");}
+function customerEdit(id){
+  fetch(`/customer/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('編集フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function customerDelete(id){
+  if (!confirm('この顧客を削除しますか？')) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch(`/customer/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('削除に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(() => location.reload())
+    .catch(error => alert(error.message));
+}
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.customerEdit = customerEdit;
+window.customerDelete = customerDelete;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */
 function doLogin(){

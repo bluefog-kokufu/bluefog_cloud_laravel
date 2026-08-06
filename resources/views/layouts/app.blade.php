@@ -52,6 +52,10 @@
         </div>
     </div>
 
+    <div class="modal-bg" id="modalBg">
+        <div class="modal" id="modalBox"></div>
+    </div>
+
     @vite(['resources/js/app.js'])
 
 </body>
