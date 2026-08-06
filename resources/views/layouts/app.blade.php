@@ -30,7 +30,7 @@
                     <div class="d" id="clockDate"></div>
                 </div>
                 <div class="navttl">MENU</div>
-                <a data-page="home">ホーム</a>
+                <a data-page="home" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ホーム</a>
                 <a data-page="customers">顧客管理</a>
                 <a data-page="sales">受注取引一覧</a>
                 <a data-page="purchases">発注取引一覧(アップロード)</a>
@@ -42,15 +42,9 @@
                 <a data-page="bs">貸借対照表</a>
                 <a data-page="pl">損益計算書</a>
                 <a data-page="cf">キャッシュフロー計算書</a>
-                <div class="navttl">賃貸革命連携</div>
-                <a data-page="m_landlords">家主基本情報</a>
-                <a data-page="m_contractors">契約者情報</a>
-                <a data-page="m_repairers">修繕業者情報</a>
-                <a data-page="m_agents">仲介・管理業者情報</a>
-                <a data-page="m_insurers">保険会社情報</a>
                 <div class="navttl">設定</div>
                 <a data-page="settings">会計・消費税設定</a>
-                <a data-page="profile" href="{{ route('profile') }}">プロフィール</a>
+                <a data-page="profile" class="{{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">プロフィール</a>
             </nav>
             <main id="page">
                 @yield('content')
