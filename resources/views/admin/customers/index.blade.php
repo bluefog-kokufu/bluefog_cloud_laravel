@@ -1,14 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / 顧客一覧</div>
 <h2 class="pagettl">顧客一覧</h2>
 <div class="panel">
     <form method="GET" action="{{ route('customer') }}" class="toolbar" style="gap:8px; align-items:center;">
         <input type="text" name="q" class="input" placeholder="会社名・担当者・メール等で検索" value="{{ old('q', $query ?? request('q')) }}">
         <button class="btn small" type="submit">検索</button>
+        <button class="btn ghost small" type="button" onclick="location.href='{{ route('customer') }}'">リセット</button>
         <span style="flex:1"></span>
-        <a class="btn ghost small" href="{{ route('customer') }}">リセット</a>
+        <button class="btn ghost small" type="button" onclick="alert('顧客作成機能は未実装です。')">顧客作成</button>
     </form>
+
+    <div class="csvbar">
+        <button class="btn yellow small" type="button" onclick="alert('CSVエクスポート機能は未実装です。')">⬇ データのエクスポート(CSV)</button>
+        <button class="btn blue small" type="button" onclick="alert('CSVインポート機能は未実装です。')">⬆ CSVインポート</button>
+        <button class="btn green small" type="button" onclick="alert('CSVテンプレート機能は未実装です。')">⬇ CSVテンプレート</button>
+    </div>
 
     <div class="card" style="overflow-x:auto">
         <table class="list">
