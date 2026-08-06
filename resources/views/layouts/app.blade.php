@@ -31,7 +31,7 @@
                 </div>
                 <div class="navttl">MENU</div>
                 <a data-page="home">ホーム</a>
-                <a data-page="customers">顧客管理</a>
+                <a data-page="customers" href="{{ route('customer') }}">顧客管理</a>
                 <a data-page="sales">受注取引一覧</a>
                 <a data-page="purchases">発注取引一覧(アップロード)</a>
                 <div class="navttl">支払通知書管理</div>
