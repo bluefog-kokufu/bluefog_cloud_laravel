@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\Notice;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -33,6 +34,48 @@ class DatabaseSeeder extends Seeder
             'link' => 'manual.html',
             'pdf_link' => 'manual.pdf',
         ]);
+
+        Customer::firstOrCreate(
+            ['id' => 'c1'],
+            [
+                'name' => 'テスト商事株式会社',
+                'person' => '山田 太郎',
+                'email' => 'info@testcompany.co.jp',
+                'tel' => '03-1234-5678',
+                'addr' => '東京都千代田区1-1-1',
+                'site' => '月末締め翌月末払い',
+                'reg_no' => 'T1234567890123',
+                'memo' => 'サンプル顧客1',
+            ]
+        );
+
+        Customer::firstOrCreate(
+            ['id' => 'c2'],
+            [
+                'name' => 'サンプル株式会社',
+                'person' => '佐藤 花子',
+                'email' => 'sato@example.co.jp',
+                'tel' => '06-9876-5432',
+                'addr' => '大阪府大阪市北区2-2-2',
+                'site' => '20日締め翌月10日払い',
+                'reg_no' => '',
+                'memo' => 'サンプル顧客2',
+            ]
+        );
+
+        Customer::firstOrCreate(
+            ['id' => 'c3'],
+            [
+                'name' => '株式会社テストソリューション',
+                'person' => '鈴木 一朗',
+                'email' => 'ichiro@testsoul.co.jp',
+                'tel' => '052-111-2222',
+                'addr' => '愛知県名古屋市中区3-3-3',
+                'site' => '即時払い',
+                'reg_no' => '',
+                'memo' => 'サンプル顧客3',
+            ]
+        );
 
         Notice::create([
             'published_at' => '2026-07-01',
