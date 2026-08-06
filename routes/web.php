@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::resource('admin/notices', \App\Http\Controllers\Admin\NoticeController::class)->names('admin.notices');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
+    Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
     Route::post('/customer/import', [CustomerController::class, 'import'])->name('customer.import');
     Route::get('/customer/export', [CustomerController::class, 'export'])->name('customer.export');
     Route::get('/customer/template', [CustomerController::class, 'template'])->name('customer.template');

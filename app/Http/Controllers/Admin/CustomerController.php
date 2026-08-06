@@ -31,6 +31,34 @@ class CustomerController extends Controller
         return view('admin.customers.index', compact('customers', 'query'));
     }
 
+    public function create(): View
+    {
+        return view('admin.customers.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
+            'zip' => ['nullable', 'string', 'max:20'],
+            'pref' => ['nullable', 'string', 'max:50'],
+            'addr1' => ['nullable', 'string', 'max:255'],
+            'addr2' => ['nullable', 'string', 'max:255'],
+            'tel' => ['nullable', 'string', 'max:50'],
+            'mobile' => ['nullable', 'string', 'max:50'],
+            'fax' => ['nullable', 'string', 'max:50'],
+            'url' => ['nullable', 'string', 'max:255'],
+            'person' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'memo' => ['nullable', 'string'],
+        ]);
+
+        Customer::create($data);
+
+        return redirect()->route('customer')->with('status', '顧客を作成しました。');
+    }
+
     public function template(): StreamedResponse
     {
         $filename = '顧客一覧_テンプレート.csv';
