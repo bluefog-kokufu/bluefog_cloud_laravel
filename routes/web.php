@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NoticeController;
+use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
@@ -47,4 +48,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/sale/export', [SaleController::class, 'export'])->name('sale.export');
     Route::get('/sale/template', [SaleController::class, 'template'])->name('sale.template');
     Route::get('/sale', [SaleController::class, 'index'])->name('sale');
+
+    Route::get('/purchase/create', [PurchaseController::class, 'create'])->name('purchase.create');
+    Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
+    Route::get('/purchase/{purchase}/edit', [PurchaseController::class, 'edit'])->name('purchase.edit');
+    Route::put('/purchase/{purchase}', [PurchaseController::class, 'update'])->name('purchase.update');
+    Route::delete('/purchase/{purchase}', [PurchaseController::class, 'destroy'])->name('purchase.destroy');
+    Route::get('/purchase/{purchase}/file/{key}', [PurchaseController::class, 'file'])
+        ->whereIn('key', ['quote', 'invoice', 'receipt', 'contract'])
+        ->name('purchase.file');
+    Route::post('/purchase/import', [PurchaseController::class, 'import'])->name('purchase.import');
+    Route::get('/purchase/export', [PurchaseController::class, 'export'])->name('purchase.export');
+    Route::get('/purchase/template', [PurchaseController::class, 'template'])->name('purchase.template');
+    Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase');
 });

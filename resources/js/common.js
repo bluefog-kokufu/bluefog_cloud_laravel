@@ -254,6 +254,57 @@ function saleItemDel(btn){
   btn.closest('tr')?.remove();
   saleRecalcAll();
 }
+/* ================= purchase (発注取引一覧アップロード) ================= */
+function purchaseCreate(){
+  fetch('/purchase/create', { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('作成フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function purchaseEdit(id){
+  fetch(`/purchase/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('編集フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function purchaseDelete(id){
+  if (!confirm('この取引書類を削除しますか？')) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch(`/purchase/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('削除に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(() => location.reload())
+    .catch(error => alert(error.message));
+}
+function purchaseAmountInput(el){
+  const taxEl = document.getElementById('pf_tax');
+  if (taxEl) {
+    taxEl.value = Math.floor(((Number(el.value) || 0) * 10) / 100);
+  }
+}
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.customerEdit = customerEdit;
@@ -268,6 +319,10 @@ window.saleRowRecalc = saleRowRecalc;
 window.saleRecalcAll = saleRecalcAll;
 window.saleItemAdd = saleItemAdd;
 window.saleItemDel = saleItemDel;
+window.purchaseCreate = purchaseCreate;
+window.purchaseEdit = purchaseEdit;
+window.purchaseDelete = purchaseDelete;
+window.purchaseAmountInput = purchaseAmountInput;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */
 function doLogin(){
