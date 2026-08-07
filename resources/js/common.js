@@ -68,7 +68,7 @@ function csvDownload(filename, rows){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),3000);
 }
-function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");}
+function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}}
 function closeModal(){$("#modalBg").classList.remove("open");}
 function customerEdit(id){
   fetch(`/customer/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
@@ -103,10 +103,171 @@ function customerDelete(id){
     .then(() => location.reload())
     .catch(error => alert(error.message));
 }
+/* ================= sale (受注取引一覧) ================= */
+function saleCreate(){
+  fetch('/sale/create', { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('作成フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function saleEdit(id){
+  fetch(`/sale/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('編集フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function saleDelete(id){
+  if (!confirm('この取引を削除しますか？')) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch(`/sale/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('削除に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(() => location.reload())
+    .catch(error => alert(error.message));
+}
+function saleInvoiceView(id){
+  fetch(`/sale/${encodeURIComponent(id)}/invoice`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('請求書の取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function saleInvoiceIssue(id){
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch(`/sale/${encodeURIComponent(id)}/issue`, {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token || '' },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('更新に失敗しました。');
+      }
+      location.reload();
+    })
+    .catch(error => alert(error.message));
+}
+function saleInvoicePrint(){
+  const content = document.getElementById('invoiceContent');
+  const printArea = document.getElementById('invoicePrintArea');
+  if (!content || !printArea) {
+    return;
+  }
+  printArea.innerHTML = content.innerHTML;
+  document.body.classList.add('printing-invoice');
+  window.print();
+  document.body.classList.remove('printing-invoice');
+}
+function saleCalcTaxAt(amount, rate){
+  return Math.floor(((Number(amount) || 0) * (Number(rate) || 0)) / 100);
+}
+function saleRowRecalc(el){
+  const tr = el.closest('tr');
+  if (!tr) {
+    return;
+  }
+  const amount = tr.querySelector('input[name$="[amount]"]')?.value;
+  const rate = tr.querySelector('select[name$="[rate]"]')?.value;
+  const taxCell = tr.querySelector('.sale-item-tax');
+  if (taxCell) {
+    taxCell.textContent = yen(saleCalcTaxAt(amount, rate));
+  }
+  saleRecalcAll();
+}
+function saleRecalcAll(){
+  const rows = document.querySelectorAll('#saleItemsBody tr');
+  const groups = {};
+  rows.forEach(tr => {
+    const amount = Number(tr.querySelector('input[name$="[amount]"]')?.value) || 0;
+    const rate = Number(tr.querySelector('select[name$="[rate]"]')?.value) || 0;
+    groups[rate] = (groups[rate] || 0) + amount;
+    const taxCell = tr.querySelector('.sale-item-tax');
+    if (taxCell) {
+      taxCell.textContent = yen(saleCalcTaxAt(amount, rate));
+    }
+  });
+  let sub = 0, tax = 0;
+  Object.keys(groups).forEach(rate => {
+    sub += groups[rate];
+    tax += saleCalcTaxAt(groups[rate], Number(rate));
+  });
+  const subEl = document.getElementById('saleSub');
+  const taxEl = document.getElementById('saleTaxTotal');
+  const totalEl = document.getElementById('saleGrandTotal');
+  if (subEl) subEl.textContent = yen(sub);
+  if (taxEl) taxEl.textContent = yen(tax);
+  if (totalEl) totalEl.textContent = yen(sub + tax);
+}
+function saleItemAdd(){
+  const table = document.getElementById('saleItems');
+  const tbody = document.getElementById('saleItemsBody');
+  if (!table || !tbody) {
+    return;
+  }
+  const index = Number(table.dataset.nextIndex || tbody.children.length);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" name="items[${index}][name]" placeholder="品目・内容"></td>
+    <td><input type="number" name="items[${index}][amount]" style="text-align:right" oninput="saleRowRecalc(this)"></td>
+    <td><select name="items[${index}][rate]" onchange="saleRowRecalc(this)">
+      <option value="10">10%(標準)</option>
+      <option value="8">8%(軽減)</option>
+      <option value="0">対象外(0%)</option>
+    </select></td>
+    <td class="num sale-item-tax" style="padding:4px 8px">¥0</td>
+    <td><button type="button" class="icon-btn" onclick="saleItemDel(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  table.dataset.nextIndex = String(index + 1);
+}
+function saleItemDel(btn){
+  const rows = document.querySelectorAll('#saleItemsBody tr');
+  if (rows.length <= 1) {
+    alert('明細は1件以上必要です。');
+    return;
+  }
+  btn.closest('tr')?.remove();
+  saleRecalcAll();
+}
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.customerEdit = customerEdit;
 window.customerDelete = customerDelete;
+window.saleCreate = saleCreate;
+window.saleEdit = saleEdit;
+window.saleDelete = saleDelete;
+window.saleInvoiceView = saleInvoiceView;
+window.saleInvoiceIssue = saleInvoiceIssue;
+window.saleInvoicePrint = saleInvoicePrint;
+window.saleRowRecalc = saleRowRecalc;
+window.saleRecalcAll = saleRecalcAll;
+window.saleItemAdd = saleItemAdd;
+window.saleItemDel = saleItemDel;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */
 function doLogin(){

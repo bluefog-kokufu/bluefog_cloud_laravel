@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\NoticeController;
+use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::resource('admin/notices', \App\Http\Controllers\Admin\NoticeController::class)->names('admin.notices');
+    Route::resource('admin/notices', NoticeController::class)->names('admin.notices');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
@@ -33,4 +35,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/customer/export', [CustomerController::class, 'export'])->name('customer.export');
     Route::get('/customer/template', [CustomerController::class, 'template'])->name('customer.template');
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer');
+
+    Route::get('/sale/create', [SaleController::class, 'create'])->name('sale.create');
+    Route::post('/sale', [SaleController::class, 'store'])->name('sale.store');
+    Route::get('/sale/{sale}/edit', [SaleController::class, 'edit'])->name('sale.edit');
+    Route::get('/sale/{sale}/invoice', [SaleController::class, 'invoice'])->name('sale.invoice');
+    Route::post('/sale/{sale}/issue', [SaleController::class, 'issue'])->name('sale.issue');
+    Route::put('/sale/{sale}', [SaleController::class, 'update'])->name('sale.update');
+    Route::delete('/sale/{sale}', [SaleController::class, 'destroy'])->name('sale.destroy');
+    Route::post('/sale/import', [SaleController::class, 'import'])->name('sale.import');
+    Route::get('/sale/export', [SaleController::class, 'export'])->name('sale.export');
+    Route::get('/sale/template', [SaleController::class, 'template'])->name('sale.template');
+    Route::get('/sale', [SaleController::class, 'index'])->name('sale');
 });

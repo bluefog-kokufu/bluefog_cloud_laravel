@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Notice;
 use App\Models\User;
@@ -74,6 +75,17 @@ class DatabaseSeeder extends Seeder
                 'site' => '即時払い',
                 'reg_no' => '',
                 'memo' => 'サンプル顧客3',
+            ]
+        );
+
+        Company::firstOrCreate(
+            ['name' => 'ユーザー企業株式会社'],
+            [
+                'reg_no' => 'T1234567890123',
+                'zip' => '600-0000',
+                'addr' => '京都府京都市中京区〇〇町1-2-3',
+                'tel' => '075-000-0000',
+                'bank' => '〇〇銀行 △△支店 普通 1234567 ユーザーキギヨウ(カ',
             ]
         );
 

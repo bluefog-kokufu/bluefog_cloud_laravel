@@ -32,7 +32,7 @@
                 <div class="navttl">MENU</div>
                 <a data-page="home" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ホーム</a>
                 <a data-page="customers" href="{{ route('customer') }}" class="{{ request()->routeIs('customer') ? 'active' : '' }}">顧客管理</a>
-                <a data-page="sales">受注取引一覧</a>
+                <a data-page="sales" href="{{ route('sale') }}" class="{{ request()->routeIs('sale') ? 'active' : '' }}">受注取引一覧</a>
                 <a data-page="purchases">発注取引一覧(アップロード)</a>
                 <div class="navttl">支払通知書管理</div>
                 <a data-page="paynotices">支払通知書一覧</a>
@@ -55,6 +55,8 @@
     <div class="modal-bg" id="modalBg">
         <div class="modal" id="modalBox"></div>
     </div>
+
+    <div id="invoicePrintArea"></div>
 
     @vite(['resources/js/app.js'])
 
