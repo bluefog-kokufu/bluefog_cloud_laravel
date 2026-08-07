@@ -85,6 +85,8 @@ class DatabaseSeeder extends Seeder
         Company::firstOrCreate(
             ['name' => 'ユーザー企業株式会社'],
             [
+                'tax_rate' => 10,
+                'rounding' => 'floor',
                 'reg_no' => 'T1234567890123',
                 'zip' => '600-0000',
                 'addr' => '京都府京都市中京区〇〇町1-2-3',

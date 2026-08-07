@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\PaymentNoticeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SaleController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -91,4 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ledger/import', [LedgerController::class, 'import'])->name('ledger.import');
     Route::put('/ledger', [LedgerController::class, 'update'])->name('ledger.update');
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger');
+
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 });

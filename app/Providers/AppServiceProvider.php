@@ -6,6 +6,8 @@ use App\Repositories\BalanceSheetRepository;
 use App\Repositories\BalanceSheetRepositoryInterface;
 use App\Repositories\CashFlowStatementRepository;
 use App\Repositories\CashFlowStatementRepositoryInterface;
+use App\Repositories\CompanyRepository;
+use App\Repositories\CompanyRepositoryInterface;
 use App\Repositories\IncomeStatementRepository;
 use App\Repositories\IncomeStatementRepositoryInterface;
 use App\Repositories\LedgerEntryRepository;
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IncomeStatementRepositoryInterface::class, IncomeStatementRepository::class);
         $this->app->bind(CashFlowStatementRepositoryInterface::class, CashFlowStatementRepository::class);
         $this->app->bind(LedgerEntryRepositoryInterface::class, LedgerEntryRepository::class);
+        $this->app->bind(CompanyRepositoryInterface::class, CompanyRepository::class);
     }
 
     /**
