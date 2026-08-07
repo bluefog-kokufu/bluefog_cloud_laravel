@@ -68,7 +68,7 @@ function csvDownload(filename, rows){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),3000);
 }
-function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}}
+function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}if(document.getElementById("paynoticeItems")){paynoticeRecalcAll();}}
 function closeModal(){$("#modalBg").classList.remove("open");}
 function customerEdit(id){
   fetch(`/customer/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
@@ -254,6 +254,131 @@ function saleItemDel(btn){
   btn.closest('tr')?.remove();
   saleRecalcAll();
 }
+/* ================= payment notice (支払通知書一覧) ================= */
+function paynoticeCreate(){
+  fetch('/paynotice/create', { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('作成フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function paynoticeEdit(id){
+  fetch(`/paynotice/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('編集フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function paynoticeView(id){
+  fetch(`/paynotice/${encodeURIComponent(id)}/view`, { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('支払通知書の取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function paynoticeDelete(id){
+  if (!confirm('この支払通知書を削除しますか？')) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch(`/paynotice/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('削除に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(() => location.reload())
+    .catch(error => alert(error.message));
+}
+function paynoticePrint(){
+  const content = document.getElementById('paynoticeContent');
+  const printArea = document.getElementById('invoicePrintArea');
+  if (!content || !printArea) {
+    return;
+  }
+  printArea.innerHTML = content.innerHTML;
+  document.body.classList.add('printing-invoice');
+  window.print();
+  document.body.classList.remove('printing-invoice');
+}
+function paynoticeCalcTaxAt(amount, taxLabel){
+  const rate = taxLabel === '10%' ? 10 : (taxLabel === '8%' || taxLabel === '8%軽減税率') ? 8 : 0;
+  return Math.floor(((Number(amount) || 0) * rate) / 100);
+}
+function paynoticeRowRecalc(el){
+  paynoticeRecalcAll();
+}
+function paynoticeRecalcAll(){
+  const rows = document.querySelectorAll('#paynoticeItemsBody tr');
+  let sub = 0, tax = 0;
+  rows.forEach(tr => {
+    const price = Number(tr.querySelector('input[name$="[price]"]')?.value) || 0;
+    const qty = Number(tr.querySelector('input[name$="[qty]"]')?.value) || 0;
+    const taxLabel = tr.querySelector('select[name$="[tax]"]')?.value || '';
+    const amount = price * qty;
+    sub += amount;
+    tax += paynoticeCalcTaxAt(amount, taxLabel);
+    const amtCell = tr.querySelector('.paynotice-item-amount');
+    if (amtCell) {
+      amtCell.textContent = num(amount);
+    }
+  });
+  const subEl = document.getElementById('pnSub');
+  const taxEl = document.getElementById('pnTax');
+  const totalEl = document.getElementById('pnTotal');
+  if (subEl) subEl.textContent = yen(sub);
+  if (taxEl) taxEl.textContent = yen(tax);
+  if (totalEl) totalEl.textContent = yen(sub + tax);
+}
+function paynoticeItemAdd(){
+  const table = document.getElementById('paynoticeItems');
+  const tbody = document.getElementById('paynoticeItemsBody');
+  if (!table || !tbody) {
+    return;
+  }
+  const index = Number(table.dataset.nextIndex || tbody.children.length);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="date" name="items[${index}][date]" value="${today()}" style="width:140px" oninput="paynoticeRowRecalc(this)"></td>
+    <td><input type="text" name="items[${index}][item]" style="min-width:160px"></td>
+    <td><input type="number" name="items[${index}][price]" style="width:110px;text-align:right" oninput="paynoticeRowRecalc(this)"></td>
+    <td><input type="text" name="items[${index}][unit]" value="式" style="width:60px"></td>
+    <td><input type="number" name="items[${index}][qty]" value="1" style="width:70px;text-align:right" oninput="paynoticeRowRecalc(this)"></td>
+    <td><select name="items[${index}][tax]" style="width:110px" onchange="paynoticeRowRecalc(this)">
+      <option value="非課税">非課税</option>
+      <option value="8%">8%</option>
+      <option value="8%軽減税率">8%軽減税率</option>
+      <option value="10%" selected>10%</option>
+    </select></td>
+    <td class="num paynotice-item-amount" style="padding:4px 8px">0</td>
+    <td><button type="button" class="icon-btn" onclick="paynoticeItemDel(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  table.dataset.nextIndex = String(index + 1);
+}
+function paynoticeItemDel(btn){
+  btn.closest('tr')?.remove();
+  paynoticeRecalcAll();
+}
 /* ================= purchase (発注取引一覧アップロード) ================= */
 function purchaseCreate(){
   fetch('/purchase/create', { headers: { Accept: 'text/html' } })
@@ -323,6 +448,15 @@ window.purchaseCreate = purchaseCreate;
 window.purchaseEdit = purchaseEdit;
 window.purchaseDelete = purchaseDelete;
 window.purchaseAmountInput = purchaseAmountInput;
+window.paynoticeCreate = paynoticeCreate;
+window.paynoticeEdit = paynoticeEdit;
+window.paynoticeView = paynoticeView;
+window.paynoticeDelete = paynoticeDelete;
+window.paynoticePrint = paynoticePrint;
+window.paynoticeRowRecalc = paynoticeRowRecalc;
+window.paynoticeRecalcAll = paynoticeRecalcAll;
+window.paynoticeItemAdd = paynoticeItemAdd;
+window.paynoticeItemDel = paynoticeItemDel;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */
 function doLogin(){
@@ -340,16 +474,6 @@ function showApp(){
   $("#userLabel").textContent=db.profile.name+"("+db.profile.email+")";
   show("home");
 }
-/* ================= router ================= */
-const PAGES={};
-function show(page){
-  document.querySelectorAll("#sideNav a").forEach(a=>a.classList.toggle("active",a.dataset.page===page));
-  PAGES[page]();
-  window.scrollTo(0,0);
-}
-document.querySelectorAll("#sideNav a").forEach(a=>a.onclick=()=>show(a.dataset.page));
-function crumb(label){return `<div class="crumb"><a onclick="show('home')">ホーム</a> / ${label}</div>`;}
-
 /* ================= clock ================= */
 function tickClock(){
   const el=document.getElementById("clockTime");if(!el)return;

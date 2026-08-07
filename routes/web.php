@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NoticeController;
+use App\Http\Controllers\Admin\PaymentNoticeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Auth\LoginController;
@@ -61,4 +62,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase/export', [PurchaseController::class, 'export'])->name('purchase.export');
     Route::get('/purchase/template', [PurchaseController::class, 'template'])->name('purchase.template');
     Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase');
+
+    Route::get('/paynotice/create', [PaymentNoticeController::class, 'create'])->name('paynotice.create');
+    Route::post('/paynotice', [PaymentNoticeController::class, 'store'])->name('paynotice.store');
+    Route::get('/paynotice/{paynotice}/edit', [PaymentNoticeController::class, 'edit'])->name('paynotice.edit');
+    Route::get('/paynotice/{paynotice}/view', [PaymentNoticeController::class, 'show'])->name('paynotice.view');
+    Route::put('/paynotice/{paynotice}', [PaymentNoticeController::class, 'update'])->name('paynotice.update');
+    Route::delete('/paynotice/{paynotice}', [PaymentNoticeController::class, 'destroy'])->name('paynotice.destroy');
+    Route::get('/paynotice', [PaymentNoticeController::class, 'index'])->name('paynotice');
 });

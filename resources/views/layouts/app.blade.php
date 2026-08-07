@@ -35,8 +35,8 @@
                 <a data-page="sales" href="{{ route('sale') }}" class="{{ request()->routeIs('sale') ? 'active' : '' }}">受注取引一覧</a>
                 <a data-page="purchases" href="{{ route('purchase') }}" class="{{ request()->routeIs('purchase') ? 'active' : '' }}">発注取引一覧(アップロード)</a>
                 <div class="navttl">支払通知書管理</div>
-                <a data-page="paynotices">支払通知書一覧</a>
-                <a data-page="payform">支払通知書作成</a>
+                <a data-page="paynotices" href="{{ route('paynotice') }}" class="{{ request()->routeIs('paynotice') ? 'active' : '' }}">支払通知書一覧</a>
+                <a data-page="payform" href="{{ route('paynotice') }}" onclick="paynoticeCreate(); return false;">支払通知書作成</a>
                 <div class="navttl">会計帳簿</div>
                 <a data-page="ledger">総勘定元帳</a>
                 <a data-page="bs">貸借対照表</a>
