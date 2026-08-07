@@ -424,6 +424,191 @@ function purchaseDelete(id){
     .then(() => location.reload())
     .catch(error => alert(error.message));
 }
+/* ================= financial statements (財務三表) ================= */
+function triText(n){
+  n = Number(n) || 0;
+  return n < 0 ? '△'+num(Math.abs(n)) : num(n);
+}
+function sumRowsIn(tbodyId){
+  let total = 0;
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(tr => {
+    total += Number(tr.querySelector('input[name$="[v]"]')?.value) || 0;
+  });
+  return total;
+}
+function addStatementRow(tbodyId, namePrefix, onInput, onDelete){
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) {
+    return;
+  }
+  const index = Number(tbody.dataset.nextIndex || tbody.children.length);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" name="${namePrefix}[${index}][name]"></td>
+    <td style="width:180px"><input type="number" name="${namePrefix}[${index}][v]" value="0" style="text-align:right" oninput="${onInput}"></td>
+    <td style="width:36px"><button type="button" class="icon-btn" onclick="${onDelete}(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  tbody.dataset.nextIndex = String(index + 1);
+}
+function bsRowAdd(section){
+  const map = { assets: 'bsAssetsBody', liabs: 'bsLiabsBody', equity: 'bsEquityBody' };
+  addStatementRow(map[section], section, 'bsRecalcAll()', 'bsRowDel');
+}
+function bsRowDel(btn){
+  btn.closest('tr')?.remove();
+  bsRecalcAll();
+}
+function bsRecalcAll(){
+  const assets = sumRowsIn('bsAssetsBody');
+  const liabs = sumRowsIn('bsLiabsBody');
+  const equity = sumRowsIn('bsEquityBody');
+  const liabsEquity = liabs + equity;
+  const assetsEl = document.getElementById('bsAssetsTotal');
+  const liabsEl = document.getElementById('bsLiabsTotal');
+  const equityEl = document.getElementById('bsEquityTotal');
+  const liabsEquityEl = document.getElementById('bsLiabsEquityTotal');
+  const msgEl = document.getElementById('bsBalanceMsg');
+  if (assetsEl) assetsEl.textContent = num(assets);
+  if (liabsEl) liabsEl.textContent = num(liabs);
+  if (equityEl) equityEl.textContent = num(equity);
+  if (liabsEquityEl) liabsEquityEl.textContent = num(liabsEquity);
+  if (msgEl) {
+    if (assets === liabsEquity) {
+      msgEl.style.color = 'var(--ok)';
+      msgEl.textContent = '✓ 貸借一致しています。';
+    } else {
+      msgEl.style.color = 'var(--danger)';
+      msgEl.textContent = `⚠ 資産合計(${num(assets)})と負債・純資産合計(${num(liabsEquity)})が一致していません。`;
+    }
+  }
+}
+function plRowAdd(){
+  const tbody = document.getElementById('plItemsBody');
+  if (!tbody) {
+    return;
+  }
+  const index = Number(tbody.dataset.nextIndex || tbody.children.length);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" name="rows[${index}][name]"></td>
+    <td><select name="rows[${index}][type]" onchange="plRecalcAll()">
+      <option value="収益">収益</option>
+      <option value="費用" selected>費用</option>
+    </select></td>
+    <td><input type="number" name="rows[${index}][v]" value="0" style="text-align:right" oninput="plRecalcAll()"></td>
+    <td><button type="button" class="icon-btn" onclick="plRowDel(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  tbody.dataset.nextIndex = String(index + 1);
+}
+function plRowDel(btn){
+  btn.closest('tr')?.remove();
+  plRecalcAll();
+}
+function plRecalcAll(){
+  let revenue = 0, expense = 0;
+  document.querySelectorAll('#plItemsBody tr').forEach(tr => {
+    const v = Number(tr.querySelector('input[name$="[v]"]')?.value) || 0;
+    const type = tr.querySelector('select[name$="[type]"]')?.value;
+    if (type === '収益') revenue += v; else expense += v;
+  });
+  const revenueEl = document.getElementById('plRevenueTotal');
+  const expenseEl = document.getElementById('plExpenseTotal');
+  const profitEl = document.getElementById('plProfitTotal');
+  if (revenueEl) revenueEl.textContent = num(revenue);
+  if (expenseEl) expenseEl.textContent = num(expense);
+  if (profitEl) profitEl.textContent = triText(revenue - expense);
+}
+function cfRowAdd(section){
+  const map = { operating: 'cfOperatingBody', investing: 'cfInvestingBody', financing: 'cfFinancingBody' };
+  addStatementRow(map[section], section, 'cfRecalcAll()', 'cfRowDel');
+}
+function cfRowDel(btn){
+  btn.closest('tr')?.remove();
+  cfRecalcAll();
+}
+function cfRecalcAll(){
+  const operating = sumRowsIn('cfOperatingBody');
+  const investing = sumRowsIn('cfInvestingBody');
+  const financing = sumRowsIn('cfFinancingBody');
+  const delta = operating + investing + financing;
+  const beginningBalance = Number(document.getElementById('cfBeginningBalance')?.value) || 0;
+  const ending = beginningBalance + delta;
+  const operatingEl = document.getElementById('cfOperatingTotal');
+  const investingEl = document.getElementById('cfInvestingTotal');
+  const financingEl = document.getElementById('cfFinancingTotal');
+  const deltaEl = document.getElementById('cfDeltaTotal');
+  const endingEl = document.getElementById('cfEndingTotal');
+  if (operatingEl) operatingEl.textContent = triText(operating);
+  if (investingEl) investingEl.textContent = triText(investing);
+  if (financingEl) financingEl.textContent = triText(financing);
+  if (deltaEl) deltaEl.textContent = triText(delta);
+  if (endingEl) endingEl.textContent = triText(ending);
+}
+/* ================= 総勘定元帳 (仕訳帳) ================= */
+function ledgerRowAdd(){
+  const tbody = document.getElementById('lgTableBody');
+  if (!tbody) {
+    return;
+  }
+  const index = Number(tbody.dataset.nextIndex || tbody.children.length);
+  const dateVal = document.getElementById('lg_date')?.value;
+  const year = dateVal ? dateVal.slice(0, 4) : String(new Date().getFullYear());
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" name="rows[${index}][no]" style="width:80px"></td>
+    <td><input type="text" name="rows[${index}][year]" value="${year}" style="width:60px;text-align:center"></td>
+    <td><input type="text" name="rows[${index}][m]" style="width:44px;text-align:center"></td>
+    <td><input type="text" name="rows[${index}][d]" style="width:44px;text-align:center"></td>
+    <td><input type="text" name="rows[${index}][dr_acct]" list="acctList" style="width:110px" oninput="ledgerRowSync(this)"></td>
+    <td><input type="number" name="rows[${index}][dr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+    <td><input type="text" name="rows[${index}][cr_acct]" list="acctList" style="width:110px" oninput="ledgerRowSync(this)"></td>
+    <td><input type="number" name="rows[${index}][cr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+    <td class="muted lg-acct-pair" style="padding:4px 8px"></td>
+    <td><input type="text" name="rows[${index}][note]" style="width:140px"></td>
+    <td><input type="text" name="rows[${index}][page]" style="width:44px;text-align:center"></td>
+    <td class="num muted lg-dr-mirror" style="padding:4px 8px"></td>
+    <td class="num muted lg-cr-mirror" style="padding:4px 8px"></td>
+    <td class="num muted" style="padding:4px 8px"></td>
+    <td><button type="button" class="icon-btn" onclick="ledgerRowDel(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  tbody.dataset.nextIndex = String(index + 1);
+}
+function ledgerRowDel(btn){
+  btn.closest('tr')?.remove();
+  ledgerRecalcAll();
+}
+function ledgerRowSync(el){
+  const tr = el.closest('tr');
+  if (!tr) {
+    return;
+  }
+  const drAcct = tr.querySelector('input[name$="[dr_acct]"]')?.value || '';
+  const crAcct = tr.querySelector('input[name$="[cr_acct]"]')?.value || '';
+  const drAmt = Number(tr.querySelector('input[name$="[dr_amt]"]')?.value) || 0;
+  const crAmt = Number(tr.querySelector('input[name$="[cr_amt]"]')?.value) || 0;
+  const pairEl = tr.querySelector('.lg-acct-pair');
+  const drMirrorEl = tr.querySelector('.lg-dr-mirror');
+  const crMirrorEl = tr.querySelector('.lg-cr-mirror');
+  if (pairEl) pairEl.textContent = [drAcct, crAcct].filter(Boolean).join('／');
+  if (drMirrorEl) drMirrorEl.textContent = drAmt ? num(drAmt) : '';
+  if (crMirrorEl) crMirrorEl.textContent = crAmt ? num(crAmt) : '';
+  ledgerRecalcAll();
+}
+function ledgerRecalcAll(){
+  let dr = 0, cr = 0;
+  document.querySelectorAll('#lgTableBody tr').forEach(tr => {
+    dr += Number(tr.querySelector('input[name$="[dr_amt]"]')?.value) || 0;
+    cr += Number(tr.querySelector('input[name$="[cr_amt]"]')?.value) || 0;
+  });
+  const drEl = document.getElementById('lgDrTotal');
+  const crEl = document.getElementById('lgCrTotal');
+  const drEl2 = document.getElementById('lgDrTotal2');
+  const crEl2 = document.getElementById('lgCrTotal2');
+  if (drEl) drEl.textContent = num(dr);
+  if (crEl) crEl.textContent = num(cr);
+  if (drEl2) drEl2.textContent = num(dr);
+  if (crEl2) crEl2.textContent = num(cr);
+}
 function purchaseAmountInput(el){
   const taxEl = document.getElementById('pf_tax');
   if (taxEl) {
@@ -457,6 +642,19 @@ window.paynoticeRowRecalc = paynoticeRowRecalc;
 window.paynoticeRecalcAll = paynoticeRecalcAll;
 window.paynoticeItemAdd = paynoticeItemAdd;
 window.paynoticeItemDel = paynoticeItemDel;
+window.bsRowAdd = bsRowAdd;
+window.bsRowDel = bsRowDel;
+window.bsRecalcAll = bsRecalcAll;
+window.plRowAdd = plRowAdd;
+window.plRowDel = plRowDel;
+window.plRecalcAll = plRecalcAll;
+window.cfRowAdd = cfRowAdd;
+window.cfRowDel = cfRowDel;
+window.cfRecalcAll = cfRecalcAll;
+window.ledgerRowAdd = ledgerRowAdd;
+window.ledgerRowDel = ledgerRowDel;
+window.ledgerRowSync = ledgerRowSync;
+window.ledgerRecalcAll = ledgerRecalcAll;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */
 function doLogin(){

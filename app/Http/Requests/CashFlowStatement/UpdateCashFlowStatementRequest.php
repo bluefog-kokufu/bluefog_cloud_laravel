@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Requests\CashFlowStatement;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateCashFlowStatementRequest extends FormRequest
+{
+    protected $redirectRoute = 'cf';
+
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'period_from' => ['required', 'date'],
+            'period_to' => ['required', 'date', 'after_or_equal:period_from'],
+            'beginning_balance' => ['required', 'integer'],
+            'operating' => ['nullable', 'array'],
+            'operating.*.name' => ['nullable', 'string', 'max:255'],
+            'operating.*.v' => ['nullable', 'integer'],
+            'investing' => ['nullable', 'array'],
+            'investing.*.name' => ['nullable', 'string', 'max:255'],
+            'investing.*.v' => ['nullable', 'integer'],
+            'financing' => ['nullable', 'array'],
+            'financing.*.name' => ['nullable', 'string', 'max:255'],
+            'financing.*.v' => ['nullable', 'integer'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'period_from' => '自',
+            'period_to' => '至',
+            'beginning_balance' => '現金及び現金同等物の期首残高',
+        ];
+    }
+}

@@ -38,10 +38,10 @@
                 <a data-page="paynotices" href="{{ route('paynotice') }}" class="{{ request()->routeIs('paynotice') ? 'active' : '' }}">支払通知書一覧</a>
                 <a data-page="payform" href="{{ route('paynotice') }}" onclick="paynoticeCreate(); return false;">支払通知書作成</a>
                 <div class="navttl">会計帳簿</div>
-                <a data-page="ledger">総勘定元帳</a>
-                <a data-page="bs">貸借対照表</a>
-                <a data-page="pl">損益計算書</a>
-                <a data-page="cf">キャッシュフロー計算書</a>
+                <a data-page="ledger" href="{{ route('ledger') }}" class="{{ request()->routeIs('ledger') ? 'active' : '' }}">総勘定元帳</a>
+                <a data-page="bs" href="{{ route('bs') }}" class="{{ request()->routeIs('bs') ? 'active' : '' }}">貸借対照表</a>
+                <a data-page="pl" href="{{ route('pl') }}" class="{{ request()->routeIs('pl') ? 'active' : '' }}">損益計算書</a>
+                <a data-page="cf" href="{{ route('cf') }}" class="{{ request()->routeIs('cf') ? 'active' : '' }}">キャッシュフロー計算書</a>
                 <div class="navttl">設定</div>
                 <a data-page="settings">会計・消費税設定</a>
                 <a data-page="profile" class="{{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">プロフィール</a>

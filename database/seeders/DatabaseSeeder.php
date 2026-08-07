@@ -2,8 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\BalanceSheet;
+use App\Models\CashFlowStatement;
 use App\Models\Company;
 use App\Models\Customer;
+use App\Models\IncomeStatement;
+use App\Models\LedgerEntry;
 use App\Models\Notice;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -103,5 +107,62 @@ class DatabaseSeeder extends Seeder
             'published_at' => '2026-05-10',
             'title' => '財務三表のCSV保存機能を追加しました。',
         ]);
+
+        BalanceSheet::firstOrCreate([], [
+            'date' => '2026-08-16',
+            'assets' => [
+                ['name' => '現金及び預金', 'v' => 3550000],
+                ['name' => '売掛金', 'v' => 1450000],
+                ['name' => '固定資産', 'v' => 5500000],
+            ],
+            'liabs' => [
+                ['name' => '買掛金', 'v' => 980000],
+                ['name' => '長期借入金', 'v' => 3200000],
+            ],
+            'equity' => [
+                ['name' => '資本金', 'v' => 5000000],
+                ['name' => '利益剰余金', 'v' => 1320000],
+            ],
+        ]);
+
+        IncomeStatement::firstOrCreate([], [
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'rows' => [
+                ['name' => '売上高', 'type' => '収益', 'v' => 12800000],
+                ['name' => '売上原価', 'type' => '費用', 'v' => 6400000],
+                ['name' => '販売費及び一般管理費', 'type' => '費用', 'v' => 3200000],
+            ],
+        ]);
+
+        CashFlowStatement::firstOrCreate([], [
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'beginning_balance' => 2100000,
+            'operating' => [
+                ['name' => '税引前当期純利益', 'v' => 3450000],
+            ],
+            'investing' => [
+                ['name' => '有形固定資産の取得による支出', 'v' => -1200000],
+            ],
+            'financing' => [
+                ['name' => '長期借入金の返済による支出', 'v' => -800000],
+            ],
+        ]);
+
+        LedgerEntry::firstOrCreate(
+            ['no' => 'test1'],
+            [
+                'year' => '2026',
+                'm' => '5',
+                'd' => '11',
+                'dr_acct' => '売掛金',
+                'dr_amt' => 55000,
+                'cr_acct' => '売上高',
+                'cr_amt' => 55000,
+                'note' => '商品売上',
+                'page' => '1',
+            ]
+        );
     }
 }

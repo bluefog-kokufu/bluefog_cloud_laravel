@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\BalanceSheetController;
+use App\Http\Controllers\Admin\CashFlowStatementController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\IncomeStatementController;
+use App\Http\Controllers\Admin\LedgerController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\PaymentNoticeController;
 use App\Http\Controllers\Admin\PurchaseController;
@@ -70,4 +74,21 @@ Route::middleware('auth')->group(function () {
     Route::put('/paynotice/{paynotice}', [PaymentNoticeController::class, 'update'])->name('paynotice.update');
     Route::delete('/paynotice/{paynotice}', [PaymentNoticeController::class, 'destroy'])->name('paynotice.destroy');
     Route::get('/paynotice', [PaymentNoticeController::class, 'index'])->name('paynotice');
+
+    Route::get('/bs/export', [BalanceSheetController::class, 'export'])->name('bs.export');
+    Route::put('/bs', [BalanceSheetController::class, 'update'])->name('bs.update');
+    Route::get('/bs', [BalanceSheetController::class, 'edit'])->name('bs');
+
+    Route::get('/pl/export', [IncomeStatementController::class, 'export'])->name('pl.export');
+    Route::put('/pl', [IncomeStatementController::class, 'update'])->name('pl.update');
+    Route::get('/pl', [IncomeStatementController::class, 'edit'])->name('pl');
+
+    Route::get('/cf/export', [CashFlowStatementController::class, 'export'])->name('cf.export');
+    Route::put('/cf', [CashFlowStatementController::class, 'update'])->name('cf.update');
+    Route::get('/cf', [CashFlowStatementController::class, 'edit'])->name('cf');
+
+    Route::get('/ledger/export', [LedgerController::class, 'export'])->name('ledger.export');
+    Route::post('/ledger/import', [LedgerController::class, 'import'])->name('ledger.import');
+    Route::put('/ledger', [LedgerController::class, 'update'])->name('ledger.update');
+    Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger');
 });

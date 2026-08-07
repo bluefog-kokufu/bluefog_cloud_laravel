@@ -103,6 +103,11 @@ table.sheet td.total{font-weight:700;background:#f4f8fd}
 .sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .sheet-head .ttl{font-weight:700;color:var(--navy);font-size:15px}
 .sheet-head .unit{margin-left:auto;font-size:11px;color:var(--muted)}
+.lgLayout{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.lgSide{display:flex;flex-direction:column;gap:10px;width:180px;flex-shrink:0}
+.tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabbar a{padding:8px 16px;cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;border-bottom:2px solid transparent}
+.tabbar a.active{color:var(--navy);border-bottom-color:var(--navy)}
 /* ---------- modal ---------- */
 .modal-bg{position:fixed;inset:0;background:rgba(15,39,56,.45);display:none;align-items:center;justify-content:center;z-index:50}
 .modal-bg.open{display:flex}
