@@ -12,6 +12,8 @@ use App\Repositories\IncomeStatementRepository;
 use App\Repositories\IncomeStatementRepositoryInterface;
 use App\Repositories\LedgerEntryRepository;
 use App\Repositories\LedgerEntryRepositoryInterface;
+use App\Repositories\PasswordResetTokenRepository;
+use App\Repositories\PasswordResetTokenRepositoryInterface;
 use App\Repositories\PaymentNoticeRepository;
 use App\Repositories\PaymentNoticeRepositoryInterface;
 use App\Repositories\PurchaseRepository;
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CashFlowStatementRepositoryInterface::class, CashFlowStatementRepository::class);
         $this->app->bind(LedgerEntryRepositoryInterface::class, LedgerEntryRepository::class);
         $this->app->bind(CompanyRepositoryInterface::class, CompanyRepository::class);
+        $this->app->bind(PasswordResetTokenRepositoryInterface::class, PasswordResetTokenRepository::class);
     }
 
     /**

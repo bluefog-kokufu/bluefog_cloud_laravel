@@ -27,7 +27,10 @@
                 @if ($errors->any())
                 <div class="err" id="loginErr">{{ $errors->first() }}</div>
                 @endif
-                <!-- 
+                @if (session('status'))
+                <div class="err" style="color:var(--navy)">{{ session('status') }}</div>
+                @endif
+                <!--
                 <div class="field">
                     <label><input type="checkbox" name="remember"> ログイン状態を保持する</label>
                 </div>
@@ -35,8 +38,7 @@
 
                 <button class="btn block" type="submit">ログイン</button>
                 <div class="login-links">
-                    <a onclick="alert('デモ版のため会員登録は省略されています。\nuser@user.com / password でログインしてください。')">会員登録はこちら</a>
-                    <a onclick="alert('デモ版のためパスワード再発行は省略されています。')">パスワードを忘れた方</a>
+                    <a href="{{ route('password.forgot') }}">パスワードを忘れた方</a>
                 </div>
             </form>
 
