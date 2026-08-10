@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notice;
-use Illuminate\Http\Request;
+use App\Services\DashboardService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function __construct(private readonly DashboardService $dashboardService) {}
+
+    public function index(): View
     {
         $notices = Notice::query()
             ->where('is_active', true)
@@ -24,6 +26,9 @@ class DashboardController extends Controller
                 ];
             });
 
-        return view('dashboard', compact('notices'));
+        return view('dashboard', array_merge(
+            ['notices' => $notices],
+            $this->dashboardService->summary(),
+        ));
     }
 }

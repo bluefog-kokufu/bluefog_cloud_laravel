@@ -5,19 +5,19 @@
 <div class="cards">
     <div class="stat">
         <div class="t">登録顧客数</div>
-        <div class="v">${db.customers.length} 社</div>
+        <div class="v">{{ $customerCount }} 社</div>
     </div>
     <div class="stat">
         <div class="t">今月の売上(税抜)</div>
-        <div class="v">${yen(ms)}</div>
+        <div class="v">¥{{ number_format($monthlySales) }}</div>
     </div>
     <div class="stat">
         <div class="t">未回収売掛金(税込)</div>
-        <div class="v">${yen(ar)}</div>
+        <div class="v">¥{{ number_format($unpaidReceivables) }}</div>
     </div>
     <div class="stat">
         <div class="t">未払買掛金(税込)</div>
-        <div class="v">${yen(ap)}</div>
+        <div class="v">¥{{ number_format($unpaidPayables) }}</div>
     </div>
 </div>
 <div class="panel">
@@ -52,7 +52,6 @@
             <button class="btn accent small" onclick="show('purchases')">取引書類(仕入)</button>
             <button class="btn accent small" onclick="show('ledger')">総勘定元帳</button>
             <button class="btn accent small" onclick="show('bs')">財務三表</button>
-            <a class="btn ghost small" href="{{ route('admin.notices.index') }}">お知らせ管理</a>
         </div>
     </div>
 </div>
