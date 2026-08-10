@@ -21,8 +21,6 @@ class DashboardController extends Controller
                     'date' => $notice->published_at->format('Y.m.d'),
                     'title' => $notice->title,
                     'message' => $notice->content,
-                    'link' => $notice->link,
-                    'pdf' => $notice->pdf_link,
                 ];
             });
 

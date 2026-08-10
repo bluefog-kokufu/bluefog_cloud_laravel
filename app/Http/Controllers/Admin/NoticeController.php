@@ -28,8 +28,6 @@ class NoticeController extends Controller
             'published_at' => ['required', 'date'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
-            'link' => ['nullable', 'string', 'max:255'],
-            'pdf_link' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -51,8 +49,6 @@ class NoticeController extends Controller
             'published_at' => ['required', 'date'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
-            'link' => ['nullable', 'string', 'max:255'],
-            'pdf_link' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 

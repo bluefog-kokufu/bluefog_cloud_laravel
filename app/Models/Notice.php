@@ -10,8 +10,6 @@ class Notice extends Model
         'published_at',
         'title',
         'content',
-        'link',
-        'pdf_link',
         'is_active',
     ];
 

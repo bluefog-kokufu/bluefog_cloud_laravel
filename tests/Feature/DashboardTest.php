@@ -20,8 +20,6 @@ class DashboardTest extends TestCase
             'published_at' => '2026-07-23',
             'title' => '操作マニュアルのお知らせ',
             'content' => 'ユーザー利用マニュアルはこちら',
-            'link' => 'manual.html',
-            'pdf_link' => 'manual.pdf',
         ]);
 
         $user = User::factory()->create();

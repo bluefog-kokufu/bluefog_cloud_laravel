@@ -27,18 +27,9 @@
             @foreach ($notices as $notice)
             <li>
                 <span class="d">{{ $notice['date'] }}</span>
-                @if (! empty($notice['link']))
-                <a href="{{ $notice['link'] }}" target="_blank">
-                    <b>{{ $notice['title'] }}</b>
-                    @if (! empty($notice['message']))
-                    — {{ $notice['message'] }}
-                    @endif
-                </a>
-                @if (! empty($notice['pdf']))
-                <a href="{{ $notice['pdf'] }}" target="_blank" class="muted">(PDF版)</a>
-                @endif
-                @else
-                {{ $notice['title'] }}
+                <b>{{ $notice['title'] }}</b>
+                @if (! empty($notice['message']))
+                — {{ $notice['message'] }}
                 @endif
             </li>
             @endforeach

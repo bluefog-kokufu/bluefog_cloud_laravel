@@ -36,8 +36,6 @@ class DatabaseSeeder extends Seeder
             'published_at' => '2026-07-23',
             'title' => '操作マニュアルのお知らせ',
             'content' => 'ユーザー利用マニュアルはこちら',
-            'link' => 'manual.html',
-            'pdf_link' => 'manual.pdf',
         ]);
 
         Customer::firstOrCreate(

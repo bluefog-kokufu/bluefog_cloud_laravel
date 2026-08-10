@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / <a href="{{ route('admin.notices.index') }}">お知らせ管理</a> / {{ isset($notice) ? 'お知らせ編集' : 'お知らせ追加' }}</div>
 <h2 class="pagettl">{{ isset($notice) ? 'お知らせ編集' : 'お知らせ追加' }}</h2>
 
 <div class="panel">
@@ -23,16 +24,6 @@
         <div class="field">
             <label for="content">本文</label>
             <textarea id="content" name="content" rows="4">{{ old('content', $notice->content ?? '') }}</textarea>
-        </div>
-
-        <div class="field">
-            <label for="link">リンクURL</label>
-            <input id="link" name="link" type="text" value="{{ old('link', $notice->link ?? '') }}" placeholder="manual.html">
-        </div>
-
-        <div class="field">
-            <label for="pdf_link">PDFリンク</label>
-            <input id="pdf_link" name="pdf_link" type="text" value="{{ old('pdf_link', $notice->pdf_link ?? '') }}" placeholder="manual.pdf">
         </div>
 
         <div class="field">

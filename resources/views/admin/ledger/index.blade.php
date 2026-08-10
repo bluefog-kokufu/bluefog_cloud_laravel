@@ -8,7 +8,9 @@
 <h2 class="pagettl">総勘定元帳</h2>
 <div class="lgLayout">
     <div class="lgSide">
+        @if ($tab === 'jnl')
         <button type="button" class="btn ghost small" onclick="ledgerRowAdd()">+ 1行追加</button>
+        @endif
         <form method="POST" action="{{ route('ledger.import') }}" enctype="multipart/form-data">
             @csrf
             <button type="button" class="btn blue small" onclick="document.getElementById('ledgerCsvFile').click()">⬆ CSVインポート</button>

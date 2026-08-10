@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / お知らせ管理</div>
 <h2 class="pagettl">お知らせ管理</h2>
 
 <div class="panel">
