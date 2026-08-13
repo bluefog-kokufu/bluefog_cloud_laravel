@@ -27,9 +27,16 @@
                 </div>
                 @error('type')<div class="error">{{ $message }}</div>@enderror
             </div>
-            <div class="field"><label>郵便番号</label><input type="text" name="zip" value="{{ old('zip') }}" placeholder="1000001"></div>
-            <div class="field"><label>都道府県</label><input type="text" name="pref" value="{{ old('pref') }}"></div>
-            <div class="field"><label>住所(市区町村・丁番地)</label><input type="text" name="addr1" value="{{ old('addr1') }}"></div>
+            <div class="field">
+                <label>郵便番号</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" id="zip" name="zip" value="{{ old('zip') }}" placeholder="1000001" style="flex:1;">
+                    <button type="button" class="btn small" onclick="fillAddressFromZip()">自動入力アドレス</button>
+                </div>
+                <div id="zipMsg" class="muted" style="margin-top:4px;"></div>
+            </div>
+            <div class="field"><label>都道府県</label><input type="text" id="pref" name="pref" value="{{ old('pref') }}"></div>
+            <div class="field"><label>住所(市区町村・丁番地)</label><input type="text" id="addr1" name="addr1" value="{{ old('addr1') }}"></div>
             <div class="field"><label>住所2(建物名・部屋番号)</label><input type="text" name="addr2" value="{{ old('addr2') }}"></div>
             <div class="field"><label>電話番号</label><input type="text" name="tel" value="{{ old('tel') }}"></div>
             <div class="field"><label>携帯電話番号</label><input type="text" name="mobile" value="{{ old('mobile') }}"></div>

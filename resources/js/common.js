@@ -68,6 +68,27 @@ function csvDownload(filename, rows){
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),3000);
 }
+/* 郵便番号から住所を自動入力する(zipcloud API) */
+function fillAddressFromZip(){
+  const zipInput=document.getElementById("zip"),prefInput=document.getElementById("pref"),addr1Input=document.getElementById("addr1"),msg=document.getElementById("zipMsg");
+  if(!zipInput||!prefInput||!addr1Input)return;
+  const zipcode=zipInput.value.replace(/[^0-9]/g,"");
+  if(zipcode.length!==7){if(msg){msg.textContent="郵便番号は7桁の数字で入力してください。";msg.style.color="var(--danger)";}return;}
+  if(msg){msg.textContent="住所を検索中...";msg.style.color="";}
+  fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.status!==200||!data.results||data.results.length===0){
+        if(msg){msg.textContent="該当する住所が見つかりませんでした。";msg.style.color="var(--danger)";}
+        return;
+      }
+      const r=data.results[0];
+      prefInput.value=r.address1;
+      addr1Input.value=r.address2+r.address3;
+      if(msg){msg.textContent="住所を自動入力しました。";msg.style.color="var(--ok)";}
+    })
+    .catch(()=>{if(msg){msg.textContent="住所の取得に失敗しました。通信環境をご確認ください。";msg.style.color="var(--danger)";}});
+}
 function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}if(document.getElementById("paynoticeItems")){paynoticeRecalcAll();}}
 function closeModal(){$("#modalBg").classList.remove("open");}
 function customerEdit(id){
@@ -615,6 +636,7 @@ function purchaseAmountInput(el){
     taxEl.value = Math.floor(((Number(el.value) || 0) * 10) / 100);
   }
 }
+window.fillAddressFromZip = fillAddressFromZip;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.customerEdit = customerEdit;
