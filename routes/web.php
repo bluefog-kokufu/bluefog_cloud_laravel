@@ -12,7 +12,9 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InternalBootstrapController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\VerifyBootstrapToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +22,10 @@ Route::get('/', function () {
         ? redirect()->route('dashboard')
         : redirect()->route('login');
 });
+
+Route::post('/internal/bootstrap', [InternalBootstrapController::class, 'store'])
+    ->middleware(VerifyBootstrapToken::class)
+    ->name('internal.bootstrap');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'internal_bootstrap' => [
+        'secret' => env('INTERNAL_BOOTSTRAP_SECRET'),
+    ],
+
 ];
