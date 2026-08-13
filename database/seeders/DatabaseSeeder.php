@@ -8,7 +8,6 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\IncomeStatement;
 use App\Models\LedgerEntry;
-use App\Models\Notice;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -31,12 +30,6 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]
         );
-
-        Notice::create([
-            'published_at' => '2026-07-23',
-            'title' => '操作マニュアルのお知らせ',
-            'content' => 'ユーザー利用マニュアルはこちら',
-        ]);
 
         Customer::firstOrCreate(
             ['id' => 'c1'],
@@ -92,21 +85,6 @@ class DatabaseSeeder extends Seeder
                 'bank' => '〇〇銀行 △△支店 普通 1234567 ユーザーキギヨウ(カ',
             ]
         );
-
-        Notice::create([
-            'published_at' => '2026-07-01',
-            'title' => '電子帳簿保存法対応:タイムスタンプ付与機能を更新しました。',
-        ]);
-
-        Notice::create([
-            'published_at' => '2026-06-15',
-            'title' => 'インボイス(適格請求書)テンプレートを更新しました。',
-        ]);
-
-        Notice::create([
-            'published_at' => '2026-05-10',
-            'title' => '財務三表のCSV保存機能を追加しました。',
-        ]);
 
         BalanceSheet::firstOrCreate([], [
             'date' => '2026-08-16',

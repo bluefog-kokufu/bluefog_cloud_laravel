@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\CashFlowStatementController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\LedgerController;
-use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Admin\PaymentNoticeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SaleController;
@@ -37,7 +36,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::resource('admin/notices', NoticeController::class)->names('admin.notices');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');

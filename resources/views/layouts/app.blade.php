@@ -43,7 +43,6 @@
                 <a data-page="pl" href="{{ route('pl') }}" class="{{ request()->routeIs('pl') ? 'active' : '' }}">損益計算書</a>
                 <a data-page="cf" href="{{ route('cf') }}" class="{{ request()->routeIs('cf') ? 'active' : '' }}">キャッシュフロー計算書</a>
                 <div class="navttl">設定</div>
-                <a data-page="notices" href="{{ route('admin.notices.index') }}" class="{{ request()->routeIs('admin.notices.*') ? 'active' : '' }}">お知らせ管理</a>
                 <a data-page="settings" href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}">会計・消費税設定</a>
                 <a data-page="profile" class="{{ request()->routeIs('profile') ? 'active' : '' }}" href="{{ route('profile') }}">プロフィール</a>
             </nav>
