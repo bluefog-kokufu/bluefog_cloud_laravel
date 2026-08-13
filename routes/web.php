@@ -104,5 +104,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger');
 
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/reset-demo', [SettingsController::class, 'resetDemo'])->name('settings.reset-demo');
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 });

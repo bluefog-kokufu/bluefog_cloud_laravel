@@ -65,7 +65,15 @@
         </div>
         <div class="formfoot">
             <button class="btn" type="submit">保存する</button>
+            @unless (app()->environment('production'))
+            <button class="btn danger" type="submit" form="reset-demo-form">デモデータを初期化</button>
+            @endunless
         </div>
     </form>
+    @unless (app()->environment('production'))
+    <form id="reset-demo-form" method="POST" action="{{ route('settings.reset-demo') }}" onsubmit="return confirm('すべてのデータを初期状態に戻します。よろしいですか？');">
+        @csrf
+    </form>
+    @endunless
 </div>
 @endsection
