@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Notice;
 use App\Services\DashboardService;
 use Illuminate\View\View;
@@ -24,7 +25,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        return view('dashboard', array_merge(
+        return view('admin.dashboard', array_merge(
             ['notices' => $notices],
             $this->dashboardService->summary(),
         ));

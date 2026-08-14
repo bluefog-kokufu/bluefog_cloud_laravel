@@ -9,11 +9,11 @@ use App\Http\Controllers\Admin\PaymentNoticeController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InternalBootstrapController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\VerifyBootstrapToken;
 use Illuminate\Support\Facades\Route;
 
