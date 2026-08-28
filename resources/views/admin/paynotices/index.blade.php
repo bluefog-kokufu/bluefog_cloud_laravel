@@ -13,7 +13,7 @@
         <button class="btn small" type="submit">絞り込み</button>
         <button class="btn ghost small" type="button" onclick="location.href='{{ route('paynotice') }}'">リセット</button>
         <span style="flex:1"></span>
-        <button class="btn ghost small" type="button" onclick="paynoticeCreate()">支払通知書作成</button>
+        <a class="btn ghost small" href="{{ route('paynotice.create') }}">支払通知書作成</a>
     </form>
 
     <div class="card" style="overflow-x:auto">
@@ -40,7 +40,7 @@
                     <td>{{ $paymentNotice->customer->name ?? '(削除済み)' }}</td>
                     <td>
                         <button class="icon-btn" title="表示" type="button" onclick="paynoticeView('{{ $paymentNotice->id }}')">📄</button>
-                        <button class="icon-btn" title="編集" type="button" onclick="paynoticeEdit('{{ $paymentNotice->id }}')">✎</button>
+                        <a class="icon-btn" title="編集" href="{{ route('paynotice.edit', $paymentNotice) }}">✎</a>
                         <button class="icon-btn" title="削除" type="button" onclick="paynoticeDelete('{{ $paymentNotice->id }}')">🗑</button>
                     </td>
                 </tr>
@@ -68,19 +68,4 @@
         </div>
     </div>
 </div>
-
-@if ($errors->any())
-<div id="reopenPaymentNoticeForm" style="display:none">
-    @include('admin.paynotices.form', ['paymentNotice' => $reopenPaymentNotice, 'customers' => $customers, 'company' => \App\Models\Company::query()->first()])
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var tpl = document.getElementById('reopenPaymentNoticeForm');
-        if (tpl) {
-            openModal(tpl.innerHTML);
-            tpl.remove();
-        }
-    });
-</script>
-@endif
 @endsection

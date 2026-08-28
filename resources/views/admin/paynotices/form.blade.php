@@ -1,15 +1,19 @@
+@extends('layouts.app')
+
 @php
     $items = old('items', $paymentNotice?->items ?? [['date' => now()->format('Y-m-d'), 'item' => '', 'price' => '', 'unit' => '式', 'qty' => 1, 'tax' => '10%']]);
     $rowCount = count($items);
 @endphp
-<div>
-    <h3>支払通知書{{ $paymentNotice ? '編集' : '作成' }}</h3>
+
+@section('content')
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / <a href="{{ route('paynotice') }}">支払通知書一覧</a> / 支払通知書{{ $paymentNotice ? '編集' : '作成' }}</div>
+<h2 class="pagettl">支払通知書{{ $paymentNotice ? '編集' : '作成' }}</h2>
+<div class="panel">
     <form method="POST" action="{{ $paymentNotice ? route('paynotice.update', $paymentNotice) : route('paynotice.store') }}">
         @csrf
         @if ($paymentNotice)
         @method('PUT')
         @endif
-        <input type="hidden" name="paynotice_id" value="{{ $paymentNotice->id ?? '' }}">
         <div class="card">
             <div class="secttl"><span class="n">1</span>取引先情報</div>
             <div class="field">
@@ -41,8 +45,13 @@
                 </div>
                 <div class="field">
                     <label>支払通知書番号</label>
-                    <input value="{{ $paymentNotice->id ?? '' }}" readonly style="background:#eef2f8" placeholder="保存時に自動採番されます">
-                    <div class="muted">{{ $paymentNotice ? '自動発行された番号です(変更不可)' : '保存時に自動採番されます' }}</div>
+                    <input type="text" name="id" id="pn_id" value="{{ old('id', $paymentNotice->id ?? $noticeNo ?? '') }}" readonly style="background:#eef2f8">
+                    @if ($paymentNotice)
+                    <div class="muted">自動発行された番号です(変更不可)</div>
+                    @else
+                    <a onclick="paynoticeRegenNo()" style="font-size:12px;cursor:pointer">🔄 番号を採番し直す</a>
+                    @endif
+                    @error('id')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
             </div>
             <div class="field">
@@ -110,8 +119,9 @@
             </table>
         </div>
         <div class="formfoot">
-            <button class="btn ghost" type="button" onclick="closeModal()">キャンセル</button>
+            <a class="btn ghost" href="{{ route('paynotice') }}">キャンセル</a>
             <button class="btn" type="submit">{{ $paymentNotice ? '更新' : '作成' }}</button>
         </div>
     </form>
 </div>
+@endsection

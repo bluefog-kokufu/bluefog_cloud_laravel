@@ -27,6 +27,40 @@ class BalanceSheetAdminTest extends TestCase
         $response->assertSee('貸借一致しています', false);
     }
 
+    public function test_editable_amount_inputs_are_comma_formatted(): void
+    {
+        $user = User::factory()->create();
+        BalanceSheet::create([
+            'date' => '2026-08-16',
+            'assets' => [['name' => '現金及び預金', 'v' => 3550000]],
+            'liabs' => [],
+            'equity' => [],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('bs'));
+        $response->assertOk();
+        $response->assertSee('value="3,550,000"', false);
+        $response->assertDontSee('value="3550000"', false);
+    }
+
+    public function test_admin_can_submit_comma_formatted_amounts(): void
+    {
+        $user = User::factory()->create();
+        $balanceSheet = BalanceSheet::create(['date' => '2026-08-16', 'assets' => [], 'liabs' => [], 'equity' => []]);
+
+        $response = $this->actingAs($user)->put(route('bs.update'), [
+            'date' => '2026-08-31',
+            'assets' => [['name' => '現金及び預金', 'v' => '3,550,000']],
+            'liabs' => [['name' => '買掛金', 'v' => '980,000']],
+            'equity' => [],
+        ]);
+
+        $response->assertRedirect(route('bs'));
+        $balanceSheet->refresh();
+        $this->assertSame(3550000, $balanceSheet->assets[0]['v']);
+        $this->assertSame(980000, $balanceSheet->liabs[0]['v']);
+    }
+
     public function test_admin_can_update_balance_sheet_rows(): void
     {
         $user = User::factory()->create();

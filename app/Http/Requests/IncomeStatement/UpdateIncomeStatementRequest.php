@@ -15,6 +15,22 @@ class UpdateIncomeStatementRequest extends FormRequest
         return true;
     }
 
+    /**
+     * 金額入力欄はカンマ区切りで表示しているため、バリデーション前にカンマを取り除く
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'rows' => collect($this->input('rows') ?? [])->map(function ($row) {
+                if (isset($row['v'])) {
+                    $row['v'] = (int) str_replace(',', '', (string) $row['v']);
+                }
+
+                return $row;
+            })->all(),
+        ]);
+    }
+
     public function rules(): array
     {
         return [

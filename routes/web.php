@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase');
 
     Route::get('/paynotice/create', [PaymentNoticeController::class, 'create'])->name('paynotice.create');
+    Route::get('/paynotice/next-number', [PaymentNoticeController::class, 'nextNumber'])->name('paynotice.next-number');
     Route::post('/paynotice', [PaymentNoticeController::class, 'store'])->name('paynotice.store');
     Route::get('/paynotice/{paynotice}/edit', [PaymentNoticeController::class, 'edit'])->name('paynotice.edit');
     Route::get('/paynotice/{paynotice}/view', [PaymentNoticeController::class, 'show'])->name('paynotice.view');

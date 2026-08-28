@@ -35,15 +35,11 @@ class PaymentNoticeService
     }
 
     /**
-     * 支払通知書を明細ごと作成する。通知番号は自動採番する。
+     * 支払通知書を明細ごと作成する。通知番号はフォーム表示時に発行済みのものを利用する。
      */
     public function create(array $data): PaymentNotice
     {
-        return DB::transaction(function () use ($data) {
-            $data['id'] = $this->generateNoticeNo();
-
-            return $this->paymentNotices->create($data);
-        });
+        return DB::transaction(fn () => $this->paymentNotices->create($data));
     }
 
     public function update(PaymentNotice $paymentNotice, array $data): PaymentNotice
@@ -90,12 +86,13 @@ class PaymentNoticeService
     }
 
     /**
-     * 通知番号を発行する（形式: SC-YYYYMMDD-001。同日中の登録件数から連番を決定する）
+     * 通知番号のプレビューを発行する（形式: SC-YYYYMMDD-001。同日中の登録件数から連番を決定する）。
+     * $bump は「番号を採番し直す」操作で連番を1つ進めるためのオフセット。
      */
-    private function generateNoticeNo(): string
+    public function previewNoticeNo(int $bump = 0): string
     {
         $date = now()->format('Ymd');
-        $seq = $this->paymentNotices->countByIdPrefix("SC-{$date}-") + 1;
+        $seq = $this->paymentNotices->countByIdPrefix("SC-{$date}-") + 1 + $bump;
 
         return sprintf('SC-%s-%03d', $date, $seq);
     }

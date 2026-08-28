@@ -89,7 +89,7 @@ function fillAddressFromZip(){
     })
     .catch(()=>{if(msg){msg.textContent="住所の取得に失敗しました。通信環境をご確認ください。";msg.style.color="var(--danger)";}});
 }
-function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}if(document.getElementById("paynoticeItems")){paynoticeRecalcAll();}}
+function openModal(html){$("#modalBox").innerHTML=html;$("#modalBg").classList.add("open");if(document.getElementById("saleItems")){saleRecalcAll();}}
 function closeModal(){$("#modalBg").classList.remove("open");}
 function customerEdit(id){
   fetch(`/customer/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
@@ -276,27 +276,21 @@ function saleItemDel(btn){
   saleRecalcAll();
 }
 /* ================= payment notice (支払通知書一覧) ================= */
-function paynoticeCreate(){
-  fetch('/paynotice/create', { headers: { Accept: 'text/html' } })
+let paynoticeNoBump = 0;
+function paynoticeRegenNo(){
+  paynoticeNoBump++;
+  fetch(`/paynotice/next-number?bump=${paynoticeNoBump}`, { headers: { Accept: 'application/json' } })
     .then(response => {
       if (!response.ok) {
-        throw new Error('作成フォームの取得に失敗しました。');
+        throw new Error('番号の再採番に失敗しました。');
       }
-      return response.text();
+      return response.json();
     })
-    .then(html => openModal(html))
-    .catch(error => alert(error.message));
-}
-function paynoticeEdit(id){
-  fetch(`/paynotice/${encodeURIComponent(id)}/edit`, { headers: { Accept: 'text/html' } })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('編集フォームの取得に失敗しました。');
-      }
-      return response.text();
+    .then(data => {
+      const el = document.getElementById('pn_id');
+      if (el) el.value = data.id;
     })
-    .then(html => openModal(html))
-    .catch(error => alert(error.message));
+    .catch(error => { paynoticeNoBump--; alert(error.message); });
 }
 function paynoticeView(id){
   fetch(`/paynotice/${encodeURIComponent(id)}/view`, { headers: { Accept: 'text/html' } })
@@ -400,6 +394,9 @@ function paynoticeItemDel(btn){
   btn.closest('tr')?.remove();
   paynoticeRecalcAll();
 }
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('paynoticeItems')) paynoticeRecalcAll();
+});
 /* ================= purchase (発注取引一覧アップロード) ================= */
 function purchaseCreate(){
   fetch('/purchase/create', { headers: { Accept: 'text/html' } })
@@ -450,10 +447,13 @@ function triText(n){
   n = Number(n) || 0;
   return n < 0 ? '△'+num(Math.abs(n)) : num(n);
 }
+function parseNum(v){
+  return Number(String(v == null ? '' : v).replace(/,/g, '')) || 0;
+}
 function sumRowsIn(tbodyId){
   let total = 0;
   document.querySelectorAll('#'+tbodyId+' tr').forEach(tr => {
-    total += Number(tr.querySelector('input[name$="[v]"]')?.value) || 0;
+    total += parseNum(tr.querySelector('input[name$="[v]"]')?.value);
   });
   return total;
 }
@@ -466,7 +466,7 @@ function addStatementRow(tbodyId, namePrefix, onInput, onDelete){
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" name="${namePrefix}[${index}][name]"></td>
-    <td style="width:180px"><input type="number" name="${namePrefix}[${index}][v]" value="0" style="text-align:right" oninput="${onInput}"></td>
+    <td style="width:180px"><input type="text" inputmode="numeric" name="${namePrefix}[${index}][v]" value="0" style="text-align:right" oninput="${onInput}"></td>
     <td style="width:36px"><button type="button" class="icon-btn" onclick="${onDelete}(this)">🗑</button></td>`;
   tbody.appendChild(tr);
   tbody.dataset.nextIndex = String(index + 1);
@@ -516,7 +516,7 @@ function plRowAdd(){
       <option value="収益">収益</option>
       <option value="費用" selected>費用</option>
     </select></td>
-    <td><input type="number" name="rows[${index}][v]" value="0" style="text-align:right" oninput="plRecalcAll()"></td>
+    <td><input type="text" inputmode="numeric" name="rows[${index}][v]" value="0" style="text-align:right" oninput="plRecalcAll()"></td>
     <td><button type="button" class="icon-btn" onclick="plRowDel(this)">🗑</button></td>`;
   tbody.appendChild(tr);
   tbody.dataset.nextIndex = String(index + 1);
@@ -528,7 +528,7 @@ function plRowDel(btn){
 function plRecalcAll(){
   let revenue = 0, expense = 0;
   document.querySelectorAll('#plItemsBody tr').forEach(tr => {
-    const v = Number(tr.querySelector('input[name$="[v]"]')?.value) || 0;
+    const v = parseNum(tr.querySelector('input[name$="[v]"]')?.value);
     const type = tr.querySelector('select[name$="[type]"]')?.value;
     if (type === '収益') revenue += v; else expense += v;
   });
@@ -552,7 +552,7 @@ function cfRecalcAll(){
   const investing = sumRowsIn('cfInvestingBody');
   const financing = sumRowsIn('cfFinancingBody');
   const delta = operating + investing + financing;
-  const beginningBalance = Number(document.getElementById('cfBeginningBalance')?.value) || 0;
+  const beginningBalance = parseNum(document.getElementById('cfBeginningBalance')?.value);
   const ending = beginningBalance + delta;
   const operatingEl = document.getElementById('cfOperatingTotal');
   const investingEl = document.getElementById('cfInvestingTotal');
@@ -565,6 +565,11 @@ function cfRecalcAll(){
   if (deltaEl) deltaEl.textContent = triText(delta);
   if (endingEl) endingEl.textContent = triText(ending);
 }
+document.addEventListener('focusout', e => {
+  if (e.target.matches('input[name$="[v]"]') || e.target.id === 'cfBeginningBalance') {
+    e.target.value = num(parseNum(e.target.value));
+  }
+});
 /* ================= 総勘定元帳 (仕訳帳) ================= */
 function ledgerRowAdd(){
   const tbody = document.getElementById('lgTableBody');
@@ -655,8 +660,7 @@ window.purchaseCreate = purchaseCreate;
 window.purchaseEdit = purchaseEdit;
 window.purchaseDelete = purchaseDelete;
 window.purchaseAmountInput = purchaseAmountInput;
-window.paynoticeCreate = paynoticeCreate;
-window.paynoticeEdit = paynoticeEdit;
+window.paynoticeRegenNo = paynoticeRegenNo;
 window.paynoticeView = paynoticeView;
 window.paynoticeDelete = paynoticeDelete;
 window.paynoticePrint = paynoticePrint;

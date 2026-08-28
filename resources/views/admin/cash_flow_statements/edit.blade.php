@@ -39,7 +39,7 @@
                 @foreach ($opRows as $i => $row)
                 <tr>
                     <td style="padding-left:24px"><input type="text" name="operating[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                    <td style="width:180px"><input type="number" name="operating[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="cfRecalcAll()"></td>
+                    <td style="width:180px"><input type="text" inputmode="numeric" name="operating[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="cfRecalcAll()"></td>
                     <td style="width:36px"><button type="button" class="icon-btn" onclick="cfRowDel(this)">🗑</button></td>
                 </tr>
                 @endforeach
@@ -52,7 +52,7 @@
                 @foreach ($invRows as $i => $row)
                 <tr>
                     <td style="padding-left:24px"><input type="text" name="investing[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                    <td style="width:180px"><input type="number" name="investing[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="cfRecalcAll()"></td>
+                    <td style="width:180px"><input type="text" inputmode="numeric" name="investing[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="cfRecalcAll()"></td>
                     <td style="width:36px"><button type="button" class="icon-btn" onclick="cfRowDel(this)">🗑</button></td>
                 </tr>
                 @endforeach
@@ -65,7 +65,7 @@
                 @foreach ($finRows as $i => $row)
                 <tr>
                     <td style="padding-left:24px"><input type="text" name="financing[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                    <td style="width:180px"><input type="number" name="financing[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="cfRecalcAll()"></td>
+                    <td style="width:180px"><input type="text" inputmode="numeric" name="financing[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="cfRecalcAll()"></td>
                     <td style="width:36px"><button type="button" class="icon-btn" onclick="cfRowDel(this)">🗑</button></td>
                 </tr>
                 @endforeach
@@ -73,7 +73,7 @@
             <tbody>
                 <tr><td class="total">財務活動によるキャッシュ・フロー</td><td class="total num" id="cfFinancingTotal" style="padding:4px 8px">{{ $tri($totals['financing']) }}</td><td></td></tr>
                 <tr><td class="total">Ⅳ 現金及び現金同等物の増減額</td><td class="total num" id="cfDeltaTotal" style="padding:4px 8px">{{ $tri($totals['delta']) }}</td><td></td></tr>
-                <tr><td class="total">Ⅴ 現金及び現金同等物の期首残高</td><td style="width:180px"><input type="number" name="beginning_balance" id="cfBeginningBalance" value="{{ old('beginning_balance', $cashFlowStatement->beginning_balance) }}" style="text-align:right" oninput="cfRecalcAll()"></td><td></td></tr>
+                <tr><td class="total">Ⅴ 現金及び現金同等物の期首残高</td><td style="width:180px"><input type="text" inputmode="numeric" name="beginning_balance" id="cfBeginningBalance" value="{{ number_format(old('beginning_balance', $cashFlowStatement->beginning_balance)) }}" style="text-align:right" oninput="cfRecalcAll()"></td><td></td></tr>
                 <tr><td class="total">Ⅵ 現金及び現金同等物の期末残高</td><td class="total num" id="cfEndingTotal" style="padding:4px 8px">{{ $tri($totals['endingBalance']) }}</td><td></td></tr>
             </tbody>
         </table>

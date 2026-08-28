@@ -13,6 +13,26 @@ class UpdateBalanceSheetRequest extends FormRequest
         return true;
     }
 
+    /**
+     * 金額入力欄はカンマ区切りで表示しているため、バリデーション前にカンマを取り除く
+     */
+    protected function prepareForValidation(): void
+    {
+        $stripCommas = fn (?array $rows) => collect($rows ?? [])->map(function ($row) {
+            if (isset($row['v'])) {
+                $row['v'] = (int) str_replace(',', '', (string) $row['v']);
+            }
+
+            return $row;
+        })->all();
+
+        $this->merge([
+            'assets' => $stripCommas($this->input('assets')),
+            'liabs' => $stripCommas($this->input('liabs')),
+            'equity' => $stripCommas($this->input('equity')),
+        ]);
+    }
+
     public function rules(): array
     {
         return [

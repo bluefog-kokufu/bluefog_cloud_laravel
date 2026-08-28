@@ -13,6 +13,32 @@ class UpdateCashFlowStatementRequest extends FormRequest
         return true;
     }
 
+    /**
+     * 金額入力欄はカンマ区切りで表示しているため、バリデーション前にカンマを取り除く
+     */
+    protected function prepareForValidation(): void
+    {
+        $stripCommas = fn (?array $rows) => collect($rows ?? [])->map(function ($row) {
+            if (isset($row['v'])) {
+                $row['v'] = (int) str_replace(',', '', (string) $row['v']);
+            }
+
+            return $row;
+        })->all();
+
+        $merge = [
+            'operating' => $stripCommas($this->input('operating')),
+            'investing' => $stripCommas($this->input('investing')),
+            'financing' => $stripCommas($this->input('financing')),
+        ];
+
+        if ($this->has('beginning_balance')) {
+            $merge['beginning_balance'] = (int) str_replace(',', '', (string) $this->input('beginning_balance'));
+        }
+
+        $this->merge($merge);
+    }
+
     public function rules(): array
     {
         return [

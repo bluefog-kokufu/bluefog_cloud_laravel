@@ -8,11 +8,6 @@ use Illuminate\Validation\Rule;
 
 class StorePaymentNoticeRequest extends FormRequest
 {
-    /**
-     * バリデーション失敗時は一覧画面へリダイレクトする（fetchで開いたモーダルのURLへ戻らないようにするため）
-     */
-    protected $redirectRoute = 'paynotice';
-
     public function authorize(): bool
     {
         return true;
@@ -21,6 +16,7 @@ class StorePaymentNoticeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => ['required', 'string', 'max:255', 'unique:payment_notices,id'],
             'cust_id' => ['required', 'string', 'exists:customers,id'],
             'pay_date' => ['required', 'date'],
             'title' => ['required', 'string', 'max:255'],
@@ -37,6 +33,7 @@ class StorePaymentNoticeRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'id' => '支払通知書番号',
             'cust_id' => '取引先名',
             'pay_date' => '支払日',
             'title' => '件名',

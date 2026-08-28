@@ -29,6 +29,37 @@ class IncomeStatementAdminTest extends TestCase
         $response->assertSee('600,000', false);
     }
 
+    public function test_editable_amount_inputs_are_comma_formatted(): void
+    {
+        $user = User::factory()->create();
+        IncomeStatement::create([
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'rows' => [['name' => '売上高', 'type' => '収益', 'v' => 1000000]],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('pl'));
+        $response->assertOk();
+        $response->assertSee('value="1,000,000"', false);
+        $response->assertDontSee('value="1000000"', false);
+    }
+
+    public function test_admin_can_submit_comma_formatted_amounts(): void
+    {
+        $user = User::factory()->create();
+        $incomeStatement = IncomeStatement::create(['period_from' => '2026-01-01', 'period_to' => '2026-12-31', 'rows' => []]);
+
+        $response = $this->actingAs($user)->put(route('pl.update'), [
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'rows' => [['name' => '売上高', 'type' => '収益', 'v' => '1,000,000']],
+        ]);
+
+        $response->assertRedirect(route('pl'));
+        $incomeStatement->refresh();
+        $this->assertSame(1000000, $incomeStatement->rows[0]['v']);
+    }
+
     public function test_admin_can_update_income_statement_rows(): void
     {
         $user = User::factory()->create();

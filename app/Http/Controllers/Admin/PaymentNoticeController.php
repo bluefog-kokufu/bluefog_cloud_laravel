@@ -8,7 +8,6 @@ use App\Http\Requests\PaymentNotice\UpdatePaymentNoticeRequest;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\PaymentNotice;
-use App\Repositories\PaymentNoticeRepositoryInterface;
 use App\Services\PaymentNoticeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -17,29 +16,33 @@ use Illuminate\View\View;
 
 class PaymentNoticeController extends Controller
 {
-    public function __construct(
-        private readonly PaymentNoticeService $paymentNoticeService,
-        private readonly PaymentNoticeRepositoryInterface $paymentNotices,
-    ) {}
+    public function __construct(private readonly PaymentNoticeService $paymentNoticeService) {}
 
     public function index(Request $request): View
     {
         $filters = $request->only(['from', 'to']);
         $paymentNotices = $this->paymentNoticeService->paginate($filters);
-        $customers = Customer::orderBy('name')->get();
 
-        // バリデーションエラーで戻ってきた場合、直前に開いていたフォームをモーダルで再表示する
-        $reopenPaymentNotice = old('paynotice_id') ? $this->paymentNotices->find(old('paynotice_id')) : null;
-
-        return view('admin.paynotices.index', compact('paymentNotices', 'customers', 'filters', 'reopenPaymentNotice'));
+        return view('admin.paynotices.index', compact('paymentNotices', 'filters'));
     }
 
-    public function create(): string
+    public function create(): View
     {
         $customers = Customer::orderBy('name')->get();
         $company = Company::query()->first();
+        $noticeNo = $this->paymentNoticeService->previewNoticeNo();
 
-        return view('admin.paynotices.form', ['paymentNotice' => null, 'customers' => $customers, 'company' => $company])->render();
+        return view('admin.paynotices.form', ['paymentNotice' => null, 'customers' => $customers, 'company' => $company, 'noticeNo' => $noticeNo]);
+    }
+
+    /**
+     * 「番号を採番し直す」操作用に、次の通知番号候補を返す
+     */
+    public function nextNumber(Request $request): JsonResponse
+    {
+        $bump = max(0, (int) $request->query('bump', 0));
+
+        return response()->json(['id' => $this->paymentNoticeService->previewNoticeNo($bump)]);
     }
 
     public function store(StorePaymentNoticeRequest $request): RedirectResponse
@@ -49,12 +52,12 @@ class PaymentNoticeController extends Controller
         return redirect()->route('paynotice')->with('status', '支払通知書を作成しました。');
     }
 
-    public function edit(PaymentNotice $paynotice): string
+    public function edit(PaymentNotice $paynotice): View
     {
         $customers = Customer::orderBy('name')->get();
         $company = Company::query()->first();
 
-        return view('admin.paynotices.form', ['paymentNotice' => $paynotice, 'customers' => $customers, 'company' => $company])->render();
+        return view('admin.paynotices.form', ['paymentNotice' => $paynotice, 'customers' => $customers, 'company' => $company]);
     }
 
     public function update(UpdatePaymentNoticeRequest $request, PaymentNotice $paynotice): RedirectResponse

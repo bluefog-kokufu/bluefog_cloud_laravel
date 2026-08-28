@@ -37,7 +37,7 @@
                     @foreach ($assetsRows as $i => $row)
                     <tr>
                         <td><input type="text" name="assets[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                        <td style="width:160px"><input type="number" name="assets[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="bsRecalcAll()"></td>
+                        <td style="width:160px"><input type="text" inputmode="numeric" name="assets[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="bsRecalcAll()"></td>
                         <td style="width:36px"><button type="button" class="icon-btn" onclick="bsRowDel(this)">🗑</button></td>
                     </tr>
                     @endforeach
@@ -52,7 +52,7 @@
                     @foreach ($liabsRows as $i => $row)
                     <tr>
                         <td><input type="text" name="liabs[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                        <td style="width:160px"><input type="number" name="liabs[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="bsRecalcAll()"></td>
+                        <td style="width:160px"><input type="text" inputmode="numeric" name="liabs[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="bsRecalcAll()"></td>
                         <td style="width:36px"><button type="button" class="icon-btn" onclick="bsRowDel(this)">🗑</button></td>
                     </tr>
                     @endforeach
@@ -65,7 +65,7 @@
                     @foreach ($equityRows as $i => $row)
                     <tr>
                         <td><input type="text" name="equity[{{ $i }}][name]" value="{{ $row['name'] ?? '' }}"></td>
-                        <td style="width:160px"><input type="number" name="equity[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="bsRecalcAll()"></td>
+                        <td style="width:160px"><input type="text" inputmode="numeric" name="equity[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="bsRecalcAll()"></td>
                         <td style="width:36px"><button type="button" class="icon-btn" onclick="bsRowDel(this)">🗑</button></td>
                     </tr>
                     @endforeach

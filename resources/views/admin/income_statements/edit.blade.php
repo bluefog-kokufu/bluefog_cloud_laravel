@@ -40,7 +40,7 @@
                             @endforeach
                         </select>
                     </td>
-                    <td><input type="number" name="rows[{{ $i }}][v]" value="{{ $row['v'] ?? 0 }}" style="text-align:right" oninput="plRecalcAll()"></td>
+                    <td><input type="text" inputmode="numeric" name="rows[{{ $i }}][v]" value="{{ number_format($row['v'] ?? 0) }}" style="text-align:right" oninput="plRecalcAll()"></td>
                     <td><button type="button" class="icon-btn" onclick="plRowDel(this)">🗑</button></td>
                 </tr>
                 @endforeach

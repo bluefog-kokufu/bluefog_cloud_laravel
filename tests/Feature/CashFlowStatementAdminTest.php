@@ -29,6 +29,49 @@ class CashFlowStatementAdminTest extends TestCase
         $response->assertSee('△200,000', false);
     }
 
+    public function test_editable_amount_inputs_are_comma_formatted(): void
+    {
+        $user = User::factory()->create();
+        CashFlowStatement::create([
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'beginning_balance' => 2100000,
+            'operating' => [['name' => '税引前当期純利益', 'v' => 3450000]],
+            'investing' => [['name' => '設備投資', 'v' => -1200000]],
+            'financing' => [],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('cf'));
+        $response->assertOk();
+        $response->assertSee('value="3,450,000"', false);
+        $response->assertSee('value="-1,200,000"', false);
+        $response->assertSee('value="2,100,000"', false);
+    }
+
+    public function test_admin_can_submit_comma_formatted_amounts(): void
+    {
+        $user = User::factory()->create();
+        $cashFlowStatement = CashFlowStatement::create([
+            'period_from' => '2026-01-01', 'period_to' => '2026-12-31', 'beginning_balance' => 0,
+            'operating' => [], 'investing' => [], 'financing' => [],
+        ]);
+
+        $response = $this->actingAs($user)->put(route('cf.update'), [
+            'period_from' => '2026-01-01',
+            'period_to' => '2026-12-31',
+            'beginning_balance' => '2,100,000',
+            'operating' => [['name' => '税引前当期純利益', 'v' => '3,450,000']],
+            'investing' => [['name' => '設備投資', 'v' => '-1,200,000']],
+            'financing' => [],
+        ]);
+
+        $response->assertRedirect(route('cf'));
+        $cashFlowStatement->refresh();
+        $this->assertSame(2100000, $cashFlowStatement->beginning_balance);
+        $this->assertSame(3450000, $cashFlowStatement->operating[0]['v']);
+        $this->assertSame(-1200000, $cashFlowStatement->investing[0]['v']);
+    }
+
     public function test_admin_can_update_cash_flow_statement_rows(): void
     {
         $user = User::factory()->create();

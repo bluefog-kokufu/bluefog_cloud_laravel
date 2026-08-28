@@ -8,11 +8,6 @@ use Illuminate\Validation\Rule;
 
 class UpdatePaymentNoticeRequest extends FormRequest
 {
-    /**
-     * バリデーション失敗時は一覧画面へリダイレクトする（fetchで開いたモーダルのURLへ戻らないようにするため）
-     */
-    protected $redirectRoute = 'paynotice';
-
     public function authorize(): bool
     {
         return true;
