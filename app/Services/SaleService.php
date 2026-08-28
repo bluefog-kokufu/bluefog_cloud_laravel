@@ -188,10 +188,26 @@ class SaleService
     /**
      * 請求書プレビュー用の情報一式を、未保存の入力内容から組み立てる（DBは更新しない）。
      */
-    public function invoicePreviewData(Sale $sale, array $data): array
+    /**
+     * @param  array<string, UploadedFile>  $uploadedFiles
+     */
+    public function invoicePreviewData(Sale $sale, array $data, array $uploadedFiles = []): array
     {
         $preview = clone $sale;
         $preview->fill(collect($data)->except(['inv_items', 'seal', 'staff_seal', '_token', '_method'])->all());
+
+        // アップロード済みでまだ保存していない印鑑画像は、ディスクに保存せずBase64データURIとしてプレビューに反映する
+        $files = $preview->files ?? [];
+        foreach ($uploadedFiles as $key => $file) {
+            if (! $file instanceof UploadedFile || ! array_key_exists($key, self::SEALS)) {
+                continue;
+            }
+            $files[$key] = [
+                'name' => $file->getClientOriginalName(),
+                'dataUrl' => 'data:'.$file->getMimeType().';base64,'.base64_encode(file_get_contents($file->getRealPath())),
+            ];
+        }
+        $preview->files = $files;
 
         $customer = Customer::find($data['cust_id'] ?? $sale->cust_id);
 

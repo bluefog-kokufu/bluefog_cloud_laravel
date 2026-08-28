@@ -105,7 +105,7 @@ class SaleController extends Controller
 
     public function invoicePreview(Request $request, Sale $sale): string
     {
-        $data = $this->saleService->invoicePreviewData($sale, $request->all());
+        $data = $this->saleService->invoicePreviewData($sale, $request->all(), $this->uploadedFiles($request));
 
         return view('admin.sales.invoice', $data)->render();
     }

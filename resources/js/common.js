@@ -532,6 +532,8 @@ function saleInvoicePreview(id){
   }
   const token = document.querySelector('meta[name="csrf-token"]')?.content;
   const formData = new FormData(form);
+  // フォーム本体は更新(PUT)用に_methodを持つが、プレビューは常にPOSTなので取り除く
+  formData.delete('_method');
   fetch(`/sale/${encodeURIComponent(id)}/invoice/preview`, {
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': token || '', Accept: 'text/html' },

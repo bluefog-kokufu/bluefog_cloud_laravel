@@ -18,7 +18,7 @@
 <div id="invoiceContent">
     <div class="invoice">
         @if ($sale->files['seal'] ?? null)
-        <img class="inv-seal" src="{{ route('sale.seal', [$sale, 'seal']) }}" alt="印鑑">
+        <img class="inv-seal" src="{{ $sale->files['seal']['dataUrl'] ?? route('sale.seal', [$sale, 'seal']) }}" alt="印鑑">
         @endif
         <h1>請 求 書</h1>
         <div class="inv-head">
@@ -47,7 +47,7 @@
                 @if ($sale->files['staff_seal'] ?? null)
                 <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px">
                     担当者印
-                    <img src="{{ route('sale.seal', [$sale, 'staff_seal']) }}" alt="担当者印鑑" style="width:32px;height:32px;object-fit:contain">
+                    <img src="{{ $sale->files['staff_seal']['dataUrl'] ?? route('sale.seal', [$sale, 'staff_seal']) }}" alt="担当者印鑑" style="width:32px;height:32px;object-fit:contain">
                 </div>
                 @endif
             </div>
@@ -100,7 +100,9 @@
 </div>
 <div class="formfoot no-print" style="justify-content:center">
     <button class="btn ghost" type="button" onclick="closeModal()">閉じる</button>
+    @empty($isPreview)
     <button class="btn accent" type="button" onclick="saleInvoicePrint()">印刷 / PDF保存</button>
+    @endempty
     @if ($sale->status === '未請求' && empty($isPreview))
     <button class="btn" type="button" onclick="saleInvoiceIssue('{{ $sale->id }}')">請求済にする</button>
     @endif
