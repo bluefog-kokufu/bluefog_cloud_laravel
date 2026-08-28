@@ -28,6 +28,8 @@ class StoreSaleRequest extends FormRequest
             'items.*.name' => ['required', 'string', 'max:255'],
             'items.*.amount' => ['required', 'integer', 'min:1'],
             'items.*.rate' => ['required', 'integer', 'in:10,8,0'],
+            'seal' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
+            'staff_seal' => ['nullable', 'file', 'mimes:png,jpg,jpeg', 'max:2048'],
         ];
     }
 
@@ -41,6 +43,8 @@ class StoreSaleRequest extends FormRequest
             'items.*.name' => '品目・内容',
             'items.*.amount' => '税抜金額',
             'items.*.rate' => '税率',
+            'seal' => '印鑑',
+            'staff_seal' => '担当者印鑑',
         ];
     }
 }
