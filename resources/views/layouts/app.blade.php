@@ -16,6 +16,7 @@
             <div class="brand"><span class="mark"></span>Bluefog Cloud</div>
             <div class="userbox">
                 <a class="manual-link" href="manual.html" target="_blank" title="ユーザー利用マニュアルを開く">📖 操作マニュアル</a>
+                <span id="companyName">{{ \App\Models\Company::query()->first()?->name }}</span>
                 <span id="userLabel"></span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
