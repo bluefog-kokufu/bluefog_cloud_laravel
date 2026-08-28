@@ -11,6 +11,9 @@
     $rows = $totals['groups'] ?? [];
     $multiPerRate = collect($items)->groupBy(fn ($item) => (int) (is_array($item) ? $item['rate'] : $item->rate))
         ->contains(fn ($group) => $group->count() > 1);
+    $honorific = $sale->honorific ?: '様';
+    $invoiceNo = $sale->invoice_no ?: $sale->id;
+    $invoiceDate = $sale->invoice_date ?? $sale->date;
 @endphp
 <div id="invoiceContent">
     <div class="invoice">
@@ -20,21 +23,27 @@
         <h1>請 求 書</h1>
         <div class="inv-head">
             <div>
-                <div style="font-size:15px;font-weight:700;border-bottom:1px solid #333;padding-bottom:4px;margin-bottom:6px">{{ $customer->name }} 様</div>
+                <div style="font-size:15px;font-weight:700;border-bottom:1px solid #333;padding-bottom:4px;margin-bottom:6px">{{ $customer->name ?? '(削除済み)' }}{{ $honorific !== '(なし)' ? ' '.$honorific : '' }}</div>
+                @if ($sale->subject)
+                <div style="margin-top:4px">件名: {{ $sale->subject }}</div>
+                @endif
                 <div style="margin-top:6px">下記の通りご請求申し上げます。</div>
             </div>
             <div style="text-align:right;font-size:12px">
-                <div>No. {{ $sale->id }}</div>
-                <div>発行日: {{ optional($sale->date)->format('Y-m-d') }}</div>
+                <div>No. {{ $invoiceNo }}</div>
+                <div>発行日: {{ optional($invoiceDate)->format('Y-m-d') }}</div>
             </div>
         </div>
         <div class="inv-head" style="margin-top:2px">
-            <div class="muted" style="font-size:12px">{{ $customer->pref }}{{ $customer->addr1 }}{{ $customer->addr2 }}</div>
+            <div class="muted" style="font-size:12px">{{ $customer->pref ?? '' }}{{ $customer->addr1 ?? '' }}{{ $customer->addr2 ?? '' }}</div>
             <div style="text-align:right;font-size:12px">
-                <div style="font-weight:700;font-size:14px">{{ $company->name ?? '' }}</div>
+                <div style="font-weight:700;font-size:{{ $sale->font_name ?? 14 }}pt">{{ $company->name ?? '' }}</div>
                 <div>登録番号: {{ $company->reg_no ?? '' }}</div>
-                <div>{{ $company->zip ?? '' }} {{ $company->addr ?? '' }}</div>
-                <div>TEL: {{ $company->tel ?? '' }}</div>
+                <div style="font-size:{{ $sale->font_addr ?? 12 }}pt">{{ $company->zip ?? '' }} {{ $company->addr ?? '' }}</div>
+                <div style="font-size:{{ $sale->font_contact ?? 12 }}pt">TEL: {{ $company->tel ?? '' }}</div>
+                @if ($sale->staff_name)
+                <div style="margin-top:2px">担当: {{ $sale->staff_name }}</div>
+                @endif
                 @if ($sale->files['staff_seal'] ?? null)
                 <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px">
                     担当者印
@@ -80,6 +89,9 @@
         <div class="inv-due">取引年月日: {{ optional($sale->date)->format('Y-m-d') }}</div>
         <div class="inv-bigtotal">ご請求金額：<span class="amt">¥{{ number_format($totals['total']) }}</span>（税込）</div>
         <div class="inv-due">お支払期限: {{ $dueDate->format('Y-m-d') }}</div>
+        @if ($sale->inv_memo)
+        <div class="inv-note" style="margin-top:8px">{!! nl2br(e($sale->inv_memo)) !!}</div>
+        @endif
         <div style="margin-top:18px;font-size:12px">
             <b>お振込先</b><br>{!! nl2br(e($company->bank ?? '')) !!}<br>
             <span class="muted">恐れ入りますが、振込手数料は貴社にてご負担いただけますようお願い申し上げます。<br>ご不明な点がございましたら、お気軽にお問い合わせください。</span>
@@ -89,7 +101,7 @@
 <div class="formfoot no-print" style="justify-content:center">
     <button class="btn ghost" type="button" onclick="closeModal()">閉じる</button>
     <button class="btn accent" type="button" onclick="saleInvoicePrint()">印刷 / PDF保存</button>
-    @if ($sale->status === '未請求')
+    @if ($sale->status === '未請求' && empty($isPreview))
     <button class="btn" type="button" onclick="saleInvoiceIssue('{{ $sale->id }}')">請求済にする</button>
     @endif
 </div>

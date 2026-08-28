@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Sale\ImportSaleCsvRequest;
 use App\Http\Requests\Sale\StoreSaleRequest;
+use App\Http\Requests\Sale\UpdateSaleInvoiceRequest;
 use App\Http\Requests\Sale\UpdateSaleRequest;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Repositories\SaleRepositoryInterface;
 use App\Services\SaleService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -43,7 +45,7 @@ class SaleController extends Controller
 
     public function store(StoreSaleRequest $request): RedirectResponse
     {
-        $this->saleService->create($request->validated(), $this->uploadedFiles($request));
+        $this->saleService->create($request->validated());
 
         return redirect()->route('sale')->with('status', '取引を作成しました。');
     }
@@ -58,7 +60,7 @@ class SaleController extends Controller
 
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
-        $this->saleService->update($sale, $request->validated(), $this->uploadedFiles($request));
+        $this->saleService->update($sale, $request->validated());
 
         return redirect()->route('sale')->with('status', '取引を更新しました。');
     }
@@ -73,6 +75,37 @@ class SaleController extends Controller
     public function invoice(Sale $sale): string
     {
         $data = $this->saleService->invoiceData($sale);
+
+        return view('admin.sales.invoice', $data)->render();
+    }
+
+    public function invoiceEdit(Sale $sale): View
+    {
+        $data = $this->saleService->invoiceEditData($sale);
+
+        return view('admin.sales.invoice-edit', $data);
+    }
+
+    /**
+     * 「番号を採番し直す」操作用に、次の請求書番号候補を返す
+     */
+    public function invoiceNextNumber(Request $request): JsonResponse
+    {
+        $bump = max(0, (int) $request->query('bump', 0));
+
+        return response()->json(['invoice_no' => $this->saleService->previewInvoiceNo($bump)]);
+    }
+
+    public function invoiceUpdate(UpdateSaleInvoiceRequest $request, Sale $sale): RedirectResponse
+    {
+        $this->saleService->updateInvoice($sale, $request->validated(), $this->uploadedFiles($request));
+
+        return redirect()->route('sale')->with('status', '請求書を作成しました。');
+    }
+
+    public function invoicePreview(Request $request, Sale $sale): string
+    {
+        $data = $this->saleService->invoicePreviewData($sale, $request->all());
 
         return view('admin.sales.invoice', $data)->render();
     }

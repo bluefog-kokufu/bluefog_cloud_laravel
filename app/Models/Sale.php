@@ -26,6 +26,17 @@ class Sale extends Model
         'invoiced',
         'memo',
         'files',
+        'honorific',
+        'staff_name',
+        'font_name',
+        'font_addr',
+        'font_contact',
+        'invoice_date',
+        'due_date',
+        'invoice_no',
+        'subject',
+        'inv_memo',
+        'inv_items',
     ];
 
     protected $casts = [
@@ -34,6 +45,12 @@ class Sale extends Model
         'amount' => 'integer',
         'tax' => 'integer',
         'files' => 'array',
+        'font_name' => 'integer',
+        'font_addr' => 'integer',
+        'font_contact' => 'integer',
+        'invoice_date' => 'date',
+        'due_date' => 'date',
+        'inv_items' => 'array',
     ];
 
     protected static function boot()

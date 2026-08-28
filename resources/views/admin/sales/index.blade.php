@@ -64,9 +64,10 @@
                     <td class="num">¥{{ number_format($sale->tax) }}</td>
                     <td>
                         @if ($sale->invoiced)
-                        <a onclick="saleInvoiceView('{{ $sale->id }}')">⬇ 表示</a>
+                        <button class="icon-btn" title="請求書を表示" type="button" onclick="saleInvoiceView('{{ $sale->id }}')">⬇</button>
+                        <button class="icon-btn" title="請求書を編集" type="button" onclick="location.href='{{ route('sale.invoice.edit', $sale) }}'">✎</button>
                         @else
-                        <a onclick="saleInvoiceView('{{ $sale->id }}')">請求書作成</a>
+                        <a href="{{ route('sale.invoice.edit', $sale) }}">請求書作成</a>
                         @endif
                     </td>
                     <td class="muted">{{ $sale->invoiced ? $sale->invoiced->format('Y.m.d H:i') : '' }}</td>

@@ -93,6 +93,7 @@ table.list tr:hover td{background:#f4f8fd}
 .muted{color:var(--muted);font-size:12px}
 .upload-box{border:2px dashed var(--line);border-radius:8px;background:#fff;padding:14px;text-align:center;font-size:12px;color:var(--muted)}
 .upload-box.has{border-color:var(--teal);color:var(--teal)}
+.upload-box.over{border-color:var(--link);background:#eef5ff;color:var(--link)}
 /* ---------- ledger tables ---------- */
 table.sheet{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
 table.sheet th{background:#eef2f8;border:1px solid var(--line);padding:6px;color:var(--navy);font-weight:600}

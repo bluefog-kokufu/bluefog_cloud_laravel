@@ -124,6 +124,109 @@ function customerDelete(id){
     .then(() => location.reload())
     .catch(error => alert(error.message));
 }
+/* 他画面(請求書作成等)からモーダルで素早く顧客を新規登録する。登録後は元画面をリロードせず、
+   顧客選択セレクトに新規顧客を追加して選択状態にする(入力中の内容を失わないため) */
+function customerQuickCreate(){
+  fetch('/customer/create-modal', { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('顧客作成フォームの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function customerQuickSave(){
+  const name = document.getElementById('cq_name')?.value.trim();
+  if (!name) {
+    alert('会社名は必須です。');
+    return;
+  }
+  const payload = {
+    name,
+    type: document.querySelector('input[name="cq_type"]:checked')?.value || '受注取引管理',
+    zip: document.getElementById('zip')?.value || '',
+    pref: document.getElementById('pref')?.value || '',
+    addr1: document.getElementById('addr1')?.value || '',
+    addr2: document.getElementById('cq_addr2')?.value || '',
+    tel: document.getElementById('cq_tel')?.value || '',
+    mobile: document.getElementById('cq_mobile')?.value || '',
+    fax: document.getElementById('cq_fax')?.value || '',
+    url: document.getElementById('cq_url')?.value || '',
+    person: document.getElementById('cq_person')?.value || '',
+    email: document.getElementById('cq_email')?.value || '',
+    memo: document.getElementById('cq_memo')?.value || '',
+  };
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch('/customer', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => {
+          const firstError = Object.values(data.errors || {})[0]?.[0];
+          throw new Error(firstError || '顧客の作成に失敗しました。');
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      const select = document.querySelector('select[name="cust_id"]');
+      if (select) {
+        const option = document.createElement('option');
+        option.value = data.id;
+        option.textContent = data.name;
+        option.selected = true;
+        select.appendChild(option);
+      }
+      closeModal();
+    })
+    .catch(error => alert(error.message));
+}
+/* 他画面(請求書作成等)からモーダルで入金口座情報のみを素早く編集する。保存後は画面をリロードせず、
+   表示中のテキストを更新する(入力中の内容を失わないため) */
+function companyBankEdit(){
+  fetch('/settings/bank-modal', { headers: { Accept: 'text/html' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('入金口座情報の取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+function companyBankSave(){
+  const value = document.getElementById('bk_val')?.value || '';
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch('/settings/bank', {
+    method: 'PUT',
+    headers: {
+      'X-CSRF-TOKEN': token || '',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ bank: value }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('入金口座情報の保存に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(data => {
+      document.querySelectorAll('#saleInvBankText').forEach(el => { el.textContent = data.bank || ''; });
+      closeModal();
+    })
+    .catch(error => alert(error.message));
+}
 /* ================= sale (受注取引一覧) ================= */
 function saleCreate(){
   fetch('/sale/create', { headers: { Accept: 'text/html' } })
@@ -299,6 +402,153 @@ function saleItemDel(btn){
   btn.closest('tr')?.remove();
   saleRecalcAll();
 }
+/* ================= sale invoice (請求書作成) ================= */
+let saleInvoiceNoBump = 0;
+function saleInvoiceRegenNo(){
+  saleInvoiceNoBump++;
+  fetch(`/sale/invoice/next-number?bump=${saleInvoiceNoBump}`, { headers: { Accept: 'application/json' } })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('番号の再採番に失敗しました。');
+      }
+      return response.json();
+    })
+    .then(data => {
+      const el = document.getElementById('inv_no');
+      if (el) el.value = data.invoice_no;
+    })
+    .catch(error => { saleInvoiceNoBump--; alert(error.message); });
+}
+function saleInvCalcTaxAt(amount, taxLabel){
+  const rate = taxLabel === '10%' ? 10 : (taxLabel === '8%' || taxLabel === '8%軽減税率') ? 8 : 0;
+  return Math.floor(((Number(amount) || 0) * rate) / 100);
+}
+function saleInvRowRecalc(el){
+  saleInvRecalcAll();
+}
+function saleInvRecalcAll(){
+  const rows = document.querySelectorAll('#saleInvItemsBody tr');
+  let sub = 0, tax = 0;
+  rows.forEach(tr => {
+    const price = Number(tr.querySelector('input[name$="[price]"]')?.value) || 0;
+    const qty = Number(tr.querySelector('input[name$="[qty]"]')?.value) || 0;
+    const taxLabel = tr.querySelector('select[name$="[tax]"]')?.value || '';
+    const amount = price * qty;
+    sub += amount;
+    tax += saleInvCalcTaxAt(amount, taxLabel);
+    const amtCell = tr.querySelector('.sale-inv-item-amount');
+    if (amtCell) {
+      amtCell.textContent = num(amount);
+    }
+  });
+  const subEl = document.getElementById('saleInvSub');
+  const taxEl = document.getElementById('saleInvTax');
+  const totalEl = document.getElementById('saleInvTotal');
+  if (subEl) subEl.textContent = yen(sub);
+  if (taxEl) taxEl.textContent = yen(tax);
+  if (totalEl) totalEl.textContent = yen(sub + tax);
+}
+function saleInvItemAdd(){
+  const table = document.getElementById('saleInvItems');
+  const tbody = document.getElementById('saleInvItemsBody');
+  if (!table || !tbody) {
+    return;
+  }
+  const index = Number(table.dataset.nextIndex || tbody.children.length);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="date" name="inv_items[${index}][date]" value="${today()}" style="width:140px" oninput="saleInvRowRecalc(this)"></td>
+    <td><input type="text" name="inv_items[${index}][item]" style="min-width:160px"></td>
+    <td><input type="number" name="inv_items[${index}][price]" style="width:110px;text-align:right" oninput="saleInvRowRecalc(this)"></td>
+    <td><input type="text" name="inv_items[${index}][unit]" value="式" style="width:60px"></td>
+    <td><input type="number" name="inv_items[${index}][qty]" value="1" style="width:70px;text-align:right" oninput="saleInvRowRecalc(this)"></td>
+    <td><select name="inv_items[${index}][tax]" style="width:110px" onchange="saleInvRowRecalc(this)">
+      <option value="非課税">非課税</option>
+      <option value="8%">8%</option>
+      <option value="8%軽減税率">8%軽減税率</option>
+      <option value="10%" selected>10%</option>
+    </select></td>
+    <td class="num sale-inv-item-amount" style="padding:4px 8px">0</td>
+    <td><button type="button" class="icon-btn" onclick="saleInvItemDel(this)">🗑</button></td>`;
+  tbody.appendChild(tr);
+  table.dataset.nextIndex = String(index + 1);
+}
+function saleInvItemDel(btn){
+  const rows = document.querySelectorAll('#saleInvItemsBody tr');
+  if (rows.length <= 1) {
+    alert('明細は1件以上必要です。');
+    return;
+  }
+  btn.closest('tr')?.remove();
+  saleInvRecalcAll();
+}
+/* 印鑑画像アップロード欄のクリック選択・ドラッグ&ドロップ対応。サーバー保存前にファイル種別・サイズを検証する */
+function saleSealValidate(file){
+  if (!file) {
+    return false;
+  }
+  if (!/^image\/(png|jpe?g)$/.test(file.type)) {
+    alert('PNGまたはJPEG形式の画像を選択してください。');
+    return false;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('ファイルサイズは2MB以下にしてください。');
+    return false;
+  }
+  return true;
+}
+function saleSealPicked(key, file){
+  if (!saleSealValidate(file)) {
+    return;
+  }
+  const box = document.getElementById(`ub_${key}`);
+  if (box) {
+    box.classList.add('has');
+    box.textContent = `✓ ${file.name}`;
+  }
+}
+function saleSealDrop(event, key){
+  event.preventDefault();
+  const box = document.getElementById(`ub_${key}`);
+  if (box) {
+    box.classList.remove('over');
+  }
+  const file = event.dataTransfer.files[0];
+  if (!saleSealValidate(file)) {
+    return;
+  }
+  const input = document.getElementById(`uf_${key}`);
+  if (input) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+  }
+  saleSealPicked(key, file);
+}
+function saleInvoicePreview(id){
+  const form = document.getElementById('saleInvoiceForm');
+  if (!form) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  const formData = new FormData(form);
+  fetch(`/sale/${encodeURIComponent(id)}/invoice/preview`, {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token || '', Accept: 'text/html' },
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('プレビューの取得に失敗しました。');
+      }
+      return response.text();
+    })
+    .then(html => openModal(html))
+    .catch(error => alert(error.message));
+}
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('saleInvItems')) saleInvRecalcAll();
+});
 /* ================= payment notice (支払通知書一覧) ================= */
 let paynoticeNoBump = 0;
 function paynoticeRegenNo(){
@@ -670,6 +920,10 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.customerEdit = customerEdit;
 window.customerDelete = customerDelete;
+window.customerQuickCreate = customerQuickCreate;
+window.customerQuickSave = customerQuickSave;
+window.companyBankEdit = companyBankEdit;
+window.companyBankSave = companyBankSave;
 window.saleCreate = saleCreate;
 window.saleEdit = saleEdit;
 window.saleDelete = saleDelete;
@@ -680,6 +934,14 @@ window.saleRowRecalc = saleRowRecalc;
 window.saleRecalcAll = saleRecalcAll;
 window.saleItemAdd = saleItemAdd;
 window.saleItemDel = saleItemDel;
+window.saleInvoiceRegenNo = saleInvoiceRegenNo;
+window.saleInvRowRecalc = saleInvRowRecalc;
+window.saleInvRecalcAll = saleInvRecalcAll;
+window.saleInvItemAdd = saleInvItemAdd;
+window.saleInvItemDel = saleInvItemDel;
+window.saleSealPicked = saleSealPicked;
+window.saleSealDrop = saleSealDrop;
+window.saleInvoicePreview = saleInvoicePreview;
 window.purchaseCreate = purchaseCreate;
 window.purchaseEdit = purchaseEdit;
 window.purchaseDelete = purchaseDelete;

@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/customer/create', [CustomerController::class, 'create'])->name('customer.create');
+    Route::get('/customer/create-modal', [CustomerController::class, 'createModal'])->name('customer.create-modal');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');
     Route::get('/customer/{customer}/edit', [CustomerController::class, 'edit'])->name('customer.edit');
     Route::put('/customer/{customer}', [CustomerController::class, 'update'])->name('customer.update');
@@ -57,6 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/sale', [SaleController::class, 'store'])->name('sale.store');
     Route::get('/sale/{sale}/edit', [SaleController::class, 'edit'])->name('sale.edit');
     Route::get('/sale/{sale}/invoice', [SaleController::class, 'invoice'])->name('sale.invoice');
+    Route::get('/sale/invoice/next-number', [SaleController::class, 'invoiceNextNumber'])->name('sale.invoice.next-number');
+    Route::get('/sale/{sale}/invoice/edit', [SaleController::class, 'invoiceEdit'])->name('sale.invoice.edit');
+    Route::put('/sale/{sale}/invoice', [SaleController::class, 'invoiceUpdate'])->name('sale.invoice.update');
+    Route::post('/sale/{sale}/invoice/preview', [SaleController::class, 'invoicePreview'])->name('sale.invoice.preview');
     Route::get('/sale/{sale}/seal/{key}', [SaleController::class, 'seal'])
         ->whereIn('key', ['seal', 'staff_seal'])
         ->name('sale.seal');
@@ -109,5 +114,7 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::post('/settings/reset-demo', [SettingsController::class, 'resetDemo'])->name('settings.reset-demo');
+    Route::get('/settings/bank-modal', [SettingsController::class, 'bankModal'])->name('settings.bank-modal');
+    Route::put('/settings/bank', [SettingsController::class, 'updateBank'])->name('settings.bank.update');
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
 });

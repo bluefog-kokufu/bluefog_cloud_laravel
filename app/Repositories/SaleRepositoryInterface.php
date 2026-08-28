@@ -37,4 +37,9 @@ interface SaleRepositoryInterface
      * 受注取引を削除する
      */
     public function delete(Sale $sale): void;
+
+    /**
+     * 指定した請求書番号の接頭辞に一致する件数を取得する（採番に利用）
+     */
+    public function countByInvoiceNoPrefix(string $prefix): int;
 }

@@ -68,4 +68,9 @@ class SaleRepository implements SaleRepositoryInterface
     {
         $sale->delete();
     }
+
+    public function countByInvoiceNoPrefix(string $prefix): int
+    {
+        return Sale::query()->where('invoice_no', 'like', $prefix.'%')->count();
+    }
 }

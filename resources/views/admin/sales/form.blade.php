@@ -4,7 +4,7 @@
 @endphp
 <div>
     <h3>{{ $sale ? '取引編集' : '取引作成' }}(売上)・インボイス対応請求書</h3>
-    <form method="POST" action="{{ $sale ? route('sale.update', $sale) : route('sale.store') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ $sale ? route('sale.update', $sale) : route('sale.store') }}">
         @csrf
         @if ($sale)
         @method('PUT')
@@ -54,23 +54,6 @@
                     <label>備考(請求書には表示されません)</label>
                     <input type="text" name="memo" value="{{ old('memo', $sale->memo ?? '') }}">
                 </div>
-            </div>
-            <div class="grid2">
-                @foreach (\App\Services\SaleService::SEALS as $key => $label)
-                @php $existing = $sale?->files[$key] ?? null; @endphp
-                <div class="field">
-                    <label>{{ $label }}(請求書に表示されます)</label>
-                    <div class="upload-box {{ $existing ? 'has' : '' }}">
-                        @if ($existing)
-                        ✓ アップロード済み: {{ $existing['name'] }}
-                        @else
-                        ⬆ 画像を選択してください<br>PNG, JPEG (2MB以下)
-                        @endif
-                    </div>
-                    <input type="file" name="{{ $key }}" accept=".png,.jpg,.jpeg" style="margin-top:6px">
-                    @error($key)<div class="field-error">{{ $message }}</div>@enderror
-                </div>
-                @endforeach
             </div>
             <div class="field" style="max-width:none">
                 <label>明細(品目ごとに税率を設定できます・軽減税率8%対応)</label>

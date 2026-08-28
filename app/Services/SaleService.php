@@ -31,6 +31,12 @@ class SaleService
         'staff_seal' => '担当者印鑑',
     ];
 
+    /** 敬称の選択肢 */
+    public const HONORIFICS = ['御中', '様', '(なし)'];
+
+    /** 請求書明細の消費税区分の選択肢(支払通知書と表記を統一) */
+    public const INV_TAX_OPTIONS = ['非課税', '8%', '8%軽減税率', '10%'];
+
     /** 印鑑画像の保存先ディスク(非公開) */
     private const DISK = 'local';
 
@@ -50,43 +56,30 @@ class SaleService
 
     /**
      * 取引を明細ごと作成する。金額・税額は明細から自動計算する。
-     *
-     * @param  array<string, UploadedFile>  $uploadedFiles
      */
-    public function create(array $data, array $uploadedFiles = []): Sale
+    public function create(array $data): Sale
     {
         $items = $data['items'];
-        unset($data['items'], $data['seal'], $data['staff_seal']);
+        unset($data['items']);
         $totals = $this->totals($items);
 
         $data['amount'] = $totals['sub'];
         $data['tax'] = $totals['tax'];
-        $data['files'] = [];
 
-        $sale = DB::transaction(fn () => $this->sales->create($data, $items));
-
-        $files = $this->storeFiles($sale, $uploadedFiles);
-        if ($files) {
-            $sale = $this->sales->update($sale, ['files' => $files], $sale->items->toArray());
-        }
-
-        return $sale;
+        return DB::transaction(fn () => $this->sales->create($data, $items));
     }
 
     /**
      * 取引を明細ごと更新する。金額・税額は明細から自動計算する。
-     *
-     * @param  array<string, UploadedFile>  $uploadedFiles
      */
-    public function update(Sale $sale, array $data, array $uploadedFiles = []): Sale
+    public function update(Sale $sale, array $data): Sale
     {
         $items = $data['items'];
-        unset($data['items'], $data['seal'], $data['staff_seal']);
+        unset($data['items']);
         $totals = $this->totals($items);
 
         $data['amount'] = $totals['sub'];
         $data['tax'] = $totals['tax'];
-        $data['files'] = array_merge($sale->files ?? [], $this->storeFiles($sale, $uploadedFiles));
 
         return DB::transaction(fn () => $this->sales->update($sale, $data, $items));
     }
@@ -176,7 +169,6 @@ class SaleService
 
     /**
      * 請求書の表示・印刷に必要な情報一式を組み立てる。
-     * 初回表示時は請求書発行日時（invoiced）を記録する。
      */
     public function invoiceData(Sale $sale): array
     {
@@ -186,28 +178,170 @@ class SaleService
             return ['error' => '取引先が未設定のため請求書を作成できません。'];
         }
 
-        if (! $sale->invoiced) {
-            $sale->invoiced = Carbon::now();
-            $sale->save();
-        }
-
         $items = $sale->items->isNotEmpty()
             ? $sale->items
             : collect([['name' => $sale->memo ?: '商品売上', 'amount' => $sale->amount, 'rate' => 10]]);
 
+        return $this->buildInvoiceView($sale, $sale->customer, $items);
+    }
+
+    /**
+     * 請求書プレビュー用の情報一式を、未保存の入力内容から組み立てる（DBは更新しない）。
+     */
+    public function invoicePreviewData(Sale $sale, array $data): array
+    {
+        $preview = clone $sale;
+        $preview->fill(collect($data)->except(['inv_items', 'seal', 'staff_seal', '_token', '_method'])->all());
+
+        $customer = Customer::find($data['cust_id'] ?? $sale->cust_id);
+
+        $items = collect($data['inv_items'] ?? [])->map(fn ($item) => [
+            'name' => $item['item'] ?? '',
+            'amount' => (int) ($item['price'] ?? 0) * (int) ($item['qty'] ?? 0),
+            'rate' => $this->invRateFromTax($item['tax'] ?? ''),
+        ]);
+
+        return $this->buildInvoiceView($preview, $customer, $items) + ['isPreview' => true];
+    }
+
+    /**
+     * 請求書表示用のデータ一式を組み立てる共通処理。
+     */
+    private function buildInvoiceView(Sale $sale, ?Customer $customer, iterable $items): array
+    {
+        $items = collect($items);
         $totals = $this->totals($items->map(fn ($item) => is_array($item) ? $item : $item->toArray())->all());
         $company = Company::query()->first();
+        $dueDate = $sale->due_date
+            ? Carbon::parse($sale->due_date)
+            : Carbon::parse($sale->invoice_date ?? $sale->date)->addDays(30);
 
         return [
             'sale' => $sale,
-            'customer' => $sale->customer,
+            'customer' => $customer,
             'company' => $company,
             'items' => $items,
             'totals' => $totals,
-            'dueDate' => Carbon::parse($sale->date)->addDays(30),
+            'dueDate' => $dueDate,
             'hasReduced' => $items->contains(fn ($item) => (int) (is_array($item) ? $item['rate'] : $item->rate) === 8),
             'rates' => collect(self::RATES)->filter(fn ($rate) => isset($totals['groups'][$rate])),
         ];
+    }
+
+    /**
+     * 請求書作成/編集画面に必要な情報一式を組み立てる。
+     */
+    public function invoiceEditData(Sale $sale): array
+    {
+        $sale->loadMissing(['items', 'customer']);
+        $company = Company::query()->first();
+        $customers = Customer::orderBy('name')->get();
+
+        $invItems = $sale->inv_items ?: $this->draftItemsFromSale($sale);
+        $invoiceNo = $sale->invoice_no ?: $this->previewInvoiceNo();
+
+        return [
+            'sale' => $sale,
+            'customers' => $customers,
+            'company' => $company,
+            'invItems' => $invItems,
+            'invoiceNo' => $invoiceNo,
+        ];
+    }
+
+    /**
+     * 既存の取引明細から、請求書明細の初期値を組み立てる。
+     */
+    private function draftItemsFromSale(Sale $sale): array
+    {
+        if ($sale->items->isNotEmpty()) {
+            return $sale->items->map(fn ($item) => [
+                'date' => optional($sale->date)->format('Y-m-d'),
+                'item' => $item->name,
+                'price' => $item->amount,
+                'unit' => '式',
+                'qty' => 1,
+                'tax' => $this->invTaxFromRate((int) $item->rate),
+            ])->all();
+        }
+
+        return [[
+            'date' => optional($sale->date)->format('Y-m-d'),
+            'item' => $sale->memo ?: '商品売上',
+            'price' => $sale->amount,
+            'unit' => '式',
+            'qty' => 1,
+            'tax' => '10%',
+        ]];
+    }
+
+    /**
+     * 請求書番号のプレビューを発行する（形式: INV-YYYYMMDD-001。同日中の登録件数から連番を決定する）。
+     * $bump は「番号を採番し直す」操作で連番を1つ進めるためのオフセット。
+     */
+    public function previewInvoiceNo(int $bump = 0): string
+    {
+        $date = now()->format('Ymd');
+        $seq = $this->sales->countByInvoiceNoPrefix("INV-{$date}-") + 1 + $bump;
+
+        return sprintf('INV-%s-%03d', $date, $seq);
+    }
+
+    /**
+     * 請求書明細の消費税区分から、取引明細の税率(%)を算出する。
+     */
+    public function invRateFromTax(string $tax): int
+    {
+        return match ($tax) {
+            '10%' => 10,
+            '8%', '8%軽減税率' => 8,
+            default => 0,
+        };
+    }
+
+    /**
+     * 取引明細の税率(%)から、請求書明細の消費税区分の初期値を算出する。
+     */
+    private function invTaxFromRate(int $rate): string
+    {
+        return match ($rate) {
+            10 => '10%',
+            8 => '8%軽減税率',
+            default => '非課税',
+        };
+    }
+
+    /**
+     * 請求書の内容(敬称・担当者・フォントサイズ・請求日等)を保存し、明細を取引本体にも反映する。
+     * 初回作成時はステータスを「請求済」にし、請求書発行日時を記録する。
+     *
+     * @param  array<string, UploadedFile>  $uploadedFiles
+     */
+    public function updateInvoice(Sale $sale, array $data, array $uploadedFiles = []): Sale
+    {
+        $invItems = $data['inv_items'];
+        unset($data['inv_items'], $data['seal'], $data['staff_seal']);
+
+        $saleItems = collect($invItems)->map(fn ($item) => [
+            'name' => $item['item'],
+            'amount' => (int) $item['price'] * (int) $item['qty'],
+            'rate' => $this->invRateFromTax($item['tax'] ?? ''),
+        ])->all();
+        $totals = $this->totals($saleItems);
+
+        $data['inv_items'] = $invItems;
+        $data['amount'] = $totals['sub'];
+        $data['tax'] = $totals['tax'];
+        $data['files'] = array_merge($sale->files ?? [], $this->storeFiles($sale, $uploadedFiles));
+
+        if (! $sale->invoiced) {
+            $data['invoiced'] = Carbon::now();
+        }
+        if ($sale->status === '未請求') {
+            $data['status'] = '請求済';
+        }
+
+        return DB::transaction(fn () => $this->sales->update($sale, $data, $saleItems));
     }
 
     /**

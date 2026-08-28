@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -36,9 +38,17 @@ class CustomerController extends Controller
         return view('admin.customers.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * 他画面(請求書作成等)からモーダルで素早く顧客を新規登録するためのフォームを返す
+     */
+    public function createModal(): string
     {
-        $data = $request->validate([
+        return view('admin.customers.modal_create')->render();
+    }
+
+    public function store(Request $request): RedirectResponse|JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
             'zip' => ['nullable', 'string', 'max:20'],
@@ -54,7 +64,19 @@ class CustomerController extends Controller
             'memo' => ['nullable', 'string'],
         ]);
 
-        Customer::create($data);
+        // モーダルからの登録時は、この画面自体のリダイレクトによるJSON判定(shouldRenderJsonWhen)が
+        // api/*配下しか対象にしないため、バリデーション失敗時は明示的にJSONで返す
+        if ($validator->fails() && $request->wantsJson()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        $data = $validator->validate();
+
+        $customer = Customer::create($data);
+
+        // モーダルからの登録時は、他画面の入力内容を失わないようリダイレクトせずJSONで返す
+        if ($request->wantsJson()) {
+            return response()->json(['id' => $customer->id, 'name' => $customer->name]);
+        }
 
         return redirect()->route('customer')->with('status', '顧客を作成しました。');
     }
