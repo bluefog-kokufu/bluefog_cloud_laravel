@@ -57,6 +57,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/sale', [SaleController::class, 'store'])->name('sale.store');
     Route::get('/sale/{sale}/edit', [SaleController::class, 'edit'])->name('sale.edit');
     Route::get('/sale/{sale}/invoice', [SaleController::class, 'invoice'])->name('sale.invoice');
+    Route::get('/sale/{sale}/seal/{key}', [SaleController::class, 'seal'])
+        ->whereIn('key', ['seal', 'staff_seal'])
+        ->name('sale.seal');
     Route::post('/sale/{sale}/issue', [SaleController::class, 'issue'])->name('sale.issue');
     Route::put('/sale/{sale}', [SaleController::class, 'update'])->name('sale.update');
     Route::delete('/sale/{sale}', [SaleController::class, 'destroy'])->name('sale.destroy');

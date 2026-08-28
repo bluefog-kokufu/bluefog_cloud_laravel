@@ -194,6 +194,32 @@ function saleInvoiceIssue(id){
     })
     .catch(error => alert(error.message));
 }
+/* 印刷用エリアに複製した内容に画像(印鑑等)が含まれる場合、読み込み完了を待ってから印刷する。
+   複製直後はブラウザキャッシュ済みでもimg要素は再読み込みが必要なため、completeを見てから印刷しないと
+   印刷結果に画像が反映されないことがある */
+function printAreaWhenReady(printArea){
+  const images = Array.from(printArea.querySelectorAll('img'));
+  const pending = images.filter(img => !img.complete);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    document.body.classList.add('printing-invoice');
+    window.print();
+    document.body.classList.remove('printing-invoice');
+  };
+  if (pending.length === 0) {
+    finish();
+    return;
+  }
+  let remaining = pending.length;
+  const done = () => { remaining--; if (remaining <= 0) finish(); };
+  pending.forEach(img => {
+    img.addEventListener('load', done, { once: true });
+    img.addEventListener('error', done, { once: true });
+  });
+  setTimeout(finish, 3000); // 万一読み込みが完了しない場合のフォールバック
+}
 function saleInvoicePrint(){
   const content = document.getElementById('invoiceContent');
   const printArea = document.getElementById('invoicePrintArea');
@@ -201,9 +227,7 @@ function saleInvoicePrint(){
     return;
   }
   printArea.innerHTML = content.innerHTML;
-  document.body.classList.add('printing-invoice');
-  window.print();
-  document.body.classList.remove('printing-invoice');
+  printAreaWhenReady(printArea);
 }
 function saleCalcTaxAt(amount, rate){
   return Math.floor(((Number(amount) || 0) * (Number(rate) || 0)) / 100);

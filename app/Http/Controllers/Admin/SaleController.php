@@ -43,7 +43,7 @@ class SaleController extends Controller
 
     public function store(StoreSaleRequest $request): RedirectResponse
     {
-        $this->saleService->create($request->validated());
+        $this->saleService->create($request->validated(), $this->uploadedFiles($request));
 
         return redirect()->route('sale')->with('status', '取引を作成しました。');
     }
@@ -58,7 +58,7 @@ class SaleController extends Controller
 
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
-        $this->saleService->update($sale, $request->validated());
+        $this->saleService->update($sale, $request->validated(), $this->uploadedFiles($request));
 
         return redirect()->route('sale')->with('status', '取引を更新しました。');
     }
@@ -75,6 +75,13 @@ class SaleController extends Controller
         $data = $this->saleService->invoiceData($sale);
 
         return view('admin.sales.invoice', $data)->render();
+    }
+
+    public function seal(Sale $sale, string $key): StreamedResponse
+    {
+        abort_unless(array_key_exists($key, SaleService::SEALS), 404);
+
+        return $this->saleService->sealResponse($sale, $key);
     }
 
     public function issue(Sale $sale): RedirectResponse
@@ -99,6 +106,21 @@ class SaleController extends Controller
         $added = $this->saleService->importCsv($request->file('csv_file')->getRealPath());
 
         return redirect()->route('sale')->with('status', "インポート完了: {$added}件の取引を登録しました");
+    }
+
+    /**
+     * リクエストからアップロードされた印鑑画像のみを取り出す
+     */
+    private function uploadedFiles(Request $request): array
+    {
+        $files = [];
+        foreach (array_keys(SaleService::SEALS) as $key) {
+            if ($request->hasFile($key)) {
+                $files[$key] = $request->file($key);
+            }
+        }
+
+        return $files;
     }
 
     private function streamCsv(string $filename, array $rows): StreamedResponse

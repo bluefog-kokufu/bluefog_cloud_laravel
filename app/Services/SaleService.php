@@ -6,10 +6,13 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Repositories\SaleRepositoryInterface;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SaleService
 {
@@ -21,6 +24,15 @@ class SaleService
 
     /** 消費税率の選択肢 */
     public const RATES = [10, 8, 0];
+
+    /** アップロード対象の印鑑画像種別(キー => 表示名) */
+    public const SEALS = [
+        'seal' => '印鑑',
+        'staff_seal' => '担当者印鑑',
+    ];
+
+    /** 印鑑画像の保存先ディスク(非公開) */
+    private const DISK = 'local';
 
     private const CSV_HEADER = ['取引No', '作成日', '取引先名', '入金方法', '品目・内容', '税抜金額', '税率(%)', 'ステータス', '備考'];
 
@@ -38,37 +50,92 @@ class SaleService
 
     /**
      * 取引を明細ごと作成する。金額・税額は明細から自動計算する。
+     *
+     * @param  array<string, UploadedFile>  $uploadedFiles
      */
-    public function create(array $data): Sale
+    public function create(array $data, array $uploadedFiles = []): Sale
     {
         $items = $data['items'];
-        unset($data['items']);
+        unset($data['items'], $data['seal'], $data['staff_seal']);
         $totals = $this->totals($items);
 
         $data['amount'] = $totals['sub'];
         $data['tax'] = $totals['tax'];
+        $data['files'] = [];
 
-        return DB::transaction(fn () => $this->sales->create($data, $items));
+        $sale = DB::transaction(fn () => $this->sales->create($data, $items));
+
+        $files = $this->storeFiles($sale, $uploadedFiles);
+        if ($files) {
+            $sale = $this->sales->update($sale, ['files' => $files], $sale->items->toArray());
+        }
+
+        return $sale;
     }
 
     /**
      * 取引を明細ごと更新する。金額・税額は明細から自動計算する。
+     *
+     * @param  array<string, UploadedFile>  $uploadedFiles
      */
-    public function update(Sale $sale, array $data): Sale
+    public function update(Sale $sale, array $data, array $uploadedFiles = []): Sale
     {
         $items = $data['items'];
-        unset($data['items']);
+        unset($data['items'], $data['seal'], $data['staff_seal']);
         $totals = $this->totals($items);
 
         $data['amount'] = $totals['sub'];
         $data['tax'] = $totals['tax'];
+        $data['files'] = array_merge($sale->files ?? [], $this->storeFiles($sale, $uploadedFiles));
 
         return DB::transaction(fn () => $this->sales->update($sale, $data, $items));
     }
 
     public function delete(Sale $sale): void
     {
+        Storage::disk(self::DISK)->deleteDirectory('sales/'.$sale->id);
         $this->sales->delete($sale);
+    }
+
+    /**
+     * アップロードされた印鑑画像をディスクに保存する。既存の同種別ファイルは置き換える。
+     *
+     * @param  array<string, UploadedFile>  $uploadedFiles
+     */
+    private function storeFiles(Sale $sale, array $uploadedFiles): array
+    {
+        $stored = [];
+        foreach ($uploadedFiles as $key => $file) {
+            if (! $file instanceof UploadedFile || ! array_key_exists($key, self::SEALS)) {
+                continue;
+            }
+
+            $existing = $sale->files[$key] ?? null;
+            if ($existing && ! empty($existing['path'])) {
+                Storage::disk(self::DISK)->delete($existing['path']);
+            }
+
+            $path = $file->storeAs('sales/'.$sale->id, $key.'_'.now()->format('YmdHis').'.'.$file->extension(), self::DISK);
+
+            $stored[$key] = [
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'ts' => now()->format('Y.m.d H:i'),
+            ];
+        }
+
+        return $stored;
+    }
+
+    /**
+     * アップロード済みの印鑑画像を、請求書モーダル内での表示に使うためインライン表示で返す(ダウンロードさせない)。
+     */
+    public function sealResponse(Sale $sale, string $key): StreamedResponse
+    {
+        $file = $sale->files[$key] ?? null;
+        abort_unless($file && Storage::disk(self::DISK)->exists($file['path']), 404);
+
+        return Storage::disk(self::DISK)->response($file['path'], $file['name']);
     }
 
     /**

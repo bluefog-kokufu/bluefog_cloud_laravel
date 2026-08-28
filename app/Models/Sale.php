@@ -25,6 +25,7 @@ class Sale extends Model
         'status',
         'invoiced',
         'memo',
+        'files',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class Sale extends Model
         'invoiced' => 'datetime',
         'amount' => 'integer',
         'tax' => 'integer',
+        'files' => 'array',
     ];
 
     protected static function boot()
