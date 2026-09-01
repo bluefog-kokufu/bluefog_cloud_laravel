@@ -48,6 +48,10 @@ class UpdateIncomeStatementRequest extends FormRequest
         return [
             'period_from' => '自',
             'period_to' => '至',
+            'rows' => '明細',
+            'rows.*.name' => '科目',
+            'rows.*.type' => '区分',
+            'rows.*.v' => '金額',
         ];
     }
 }

@@ -37,6 +37,7 @@ class StorePaymentNoticeRequest extends FormRequest
             'cust_id' => '取引先名',
             'pay_date' => '支払日',
             'title' => '件名',
+            'items' => '明細',
             'items.*.date' => '明細の日付',
             'items.*.item' => '明細の品目',
             'items.*.price' => '明細の単価',

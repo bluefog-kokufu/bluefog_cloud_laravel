@@ -52,6 +52,7 @@ class UpdateSaleInvoiceRequest extends FormRequest
             'due_date' => '支払期日',
             'invoice_no' => '請求書番号',
             'subject' => '件名',
+            'inv_items' => '明細',
             'inv_items.*.date' => '明細の日付',
             'inv_items.*.item' => '明細の品目',
             'inv_items.*.price' => '明細の単価',

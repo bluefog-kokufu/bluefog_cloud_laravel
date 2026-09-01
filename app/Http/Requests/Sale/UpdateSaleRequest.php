@@ -38,6 +38,7 @@ class UpdateSaleRequest extends FormRequest
             'date' => '作成日',
             'method' => '入金方法',
             'status' => 'ステータス',
+            'items' => '明細',
             'items.*.name' => '品目・内容',
             'items.*.amount' => '税抜金額',
             'items.*.rate' => '税率',

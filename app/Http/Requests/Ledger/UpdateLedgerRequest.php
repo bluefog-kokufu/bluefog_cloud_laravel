@@ -29,4 +29,21 @@ class UpdateLedgerRequest extends FormRequest
             'rows.*.page' => ['nullable', 'string', 'max:20'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'rows' => '仕訳',
+            'rows.*.no' => '伝票No.',
+            'rows.*.year' => '年',
+            'rows.*.m' => '月',
+            'rows.*.d' => '日',
+            'rows.*.dr_acct' => '借方勘定科目',
+            'rows.*.dr_amt' => '借方金額',
+            'rows.*.cr_acct' => '貸方勘定科目',
+            'rows.*.cr_amt' => '貸方金額',
+            'rows.*.note' => '摘要',
+            'rows.*.page' => '仕丁',
+        ];
+    }
 }

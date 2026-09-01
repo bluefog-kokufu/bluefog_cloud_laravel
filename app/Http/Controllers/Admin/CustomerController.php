@@ -62,7 +62,7 @@ class CustomerController extends Controller
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ]);
+        ], [], $this->attributeNames());
 
         // モーダルからの登録時は、この画面自体のリダイレクトによるJSON判定(shouldRenderJsonWhen)が
         // api/*配下しか対象にしないため、バリデーション失敗時は明示的にJSONで返す
@@ -102,7 +102,7 @@ class CustomerController extends Controller
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ]);
+        ], [], $this->attributeNames());
 
         $customer->update($data);
 
@@ -177,7 +177,7 @@ class CustomerController extends Controller
     {
         $request->validate([
             'csv_file' => ['required', 'file', 'mimes:csv,txt'],
-        ]);
+        ], [], ['csv_file' => 'CSVファイル']);
 
         $file = $request->file('csv_file');
         $added = 0;
@@ -228,5 +228,27 @@ class CustomerController extends Controller
         fclose($handle);
 
         return redirect()->route('customer')->with('status', "インポート完了: 新規{$added}件");
+    }
+
+    /**
+     * バリデーションエラーメッセージ内の項目名を日本語化する
+     */
+    private function attributeNames(): array
+    {
+        return [
+            'name' => '会社名',
+            'type' => '顧客タイプ',
+            'zip' => '郵便番号',
+            'pref' => '都道府県',
+            'addr1' => '住所(市区町村・丁番地)',
+            'addr2' => '住所2(建物名・部屋番号)',
+            'tel' => '電話番号',
+            'mobile' => '携帯電話番号',
+            'fax' => 'ファックス番号',
+            'url' => 'ウェブサイトURL',
+            'person' => '担当者名',
+            'email' => 'メールアドレス',
+            'memo' => 'メモ',
+        ];
     }
 }

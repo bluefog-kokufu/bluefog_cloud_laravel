@@ -63,6 +63,15 @@ class UpdateCashFlowStatementRequest extends FormRequest
             'period_from' => '自',
             'period_to' => '至',
             'beginning_balance' => '現金及び現金同等物の期首残高',
+            'operating' => '営業活動によるキャッシュフロー',
+            'operating.*.name' => '営業活動の科目',
+            'operating.*.v' => '営業活動の金額',
+            'investing' => '投資活動によるキャッシュフロー',
+            'investing.*.name' => '投資活動の科目',
+            'investing.*.v' => '投資活動の金額',
+            'financing' => '財務活動によるキャッシュフロー',
+            'financing.*.name' => '財務活動の科目',
+            'financing.*.v' => '財務活動の金額',
         ];
     }
 }

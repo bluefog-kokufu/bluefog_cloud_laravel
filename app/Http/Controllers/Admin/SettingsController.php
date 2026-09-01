@@ -52,7 +52,7 @@ class SettingsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'bank' => ['nullable', 'string', 'max:255'],
-        ]);
+        ], [], ['bank' => '振込先']);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);

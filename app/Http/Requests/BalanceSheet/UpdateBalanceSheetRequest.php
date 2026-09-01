@@ -53,6 +53,15 @@ class UpdateBalanceSheetRequest extends FormRequest
     {
         return [
             'date' => '日付',
+            'assets' => '資産の部',
+            'assets.*.name' => '資産の科目',
+            'assets.*.v' => '資産の金額',
+            'liabs' => '負債の部',
+            'liabs.*.name' => '負債の科目',
+            'liabs.*.v' => '負債の金額',
+            'equity' => '純資産の部',
+            'equity.*.name' => '純資産の科目',
+            'equity.*.v' => '純資産の金額',
         ];
     }
 }

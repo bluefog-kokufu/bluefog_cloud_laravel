@@ -19,4 +19,11 @@ class ImportSaleCsvRequest extends FormRequest
             'csv_file' => ['required', 'file', 'mimes:csv,txt'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'csv_file' => 'CSVファイル',
+        ];
+    }
 }
