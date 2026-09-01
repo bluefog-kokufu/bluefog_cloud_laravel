@@ -32,8 +32,8 @@
             <div style="font-size:13px"><b>{{ $company->name ?? '' }}</b><br><span class="muted">〒{{ $company->zip ?? '' }} {{ $company->addr ?? '' }}</span></div>
         </div>
         <div class="card">
-            <div class="secttl"><span class="n">3</span>入金口座情報</div>
-            <div style="font-size:13px">{{ $company->bank ?? '' }}</div>
+            <div class="secttl"><span class="n">3</span>入金口座情報 <button type="button" class="btn ghost small" onclick="companyBankEdit()">編集 預金口座情報</button></div>
+            <div class="companyBankText" style="font-size:13px">{{ $company->bank ?? '' }}</div>
         </div>
         <div class="card">
             <div class="secttl"><span class="n">4</span>基本情報</div>

@@ -222,7 +222,7 @@ function companyBankSave(){
       return response.json();
     })
     .then(data => {
-      document.querySelectorAll('#saleInvBankText').forEach(el => { el.textContent = data.bank || ''; });
+      document.querySelectorAll('.companyBankText').forEach(el => { el.textContent = data.bank || ''; });
       closeModal();
     })
     .catch(error => alert(error.message));

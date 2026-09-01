@@ -42,12 +42,11 @@
                 <div style="font-size:{{ $sale->font_addr ?? 12 }}pt">{{ $company->zip ?? '' }} {{ $company->addr ?? '' }}</div>
                 <div style="font-size:{{ $sale->font_contact ?? 12 }}pt">TEL: {{ $company->tel ?? '' }}</div>
                 @if ($sale->staff_name)
-                <div style="margin-top:2px">担当: {{ $sale->staff_name }}</div>
-                @endif
-                @if ($sale->files['staff_seal'] ?? null)
-                <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px">
-                    担当者印
-                    <img src="{{ $sale->files['staff_seal']['dataUrl'] ?? route('sale.seal', [$sale, 'staff_seal']) }}" alt="担当者印鑑" style="width:32px;height:32px;object-fit:contain">
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:2px">
+                    担当: {{ $sale->staff_name }}
+                    @if ($sale->files['staff_seal'] ?? null)
+                    <img src="{{ $sale->files['staff_seal']['dataUrl'] ?? route('sale.seal', [$sale, 'staff_seal']) }}" alt="担当者印" style="width:32px;height:32px;object-fit:contain">
+                    @endif
                 </div>
                 @endif
             </div>
