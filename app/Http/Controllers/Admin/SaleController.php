@@ -140,7 +140,7 @@ class SaleController extends Controller
         try {
             $added = $this->saleService->importCsv($request->file('csv_file')->getRealPath());
         } catch (RuntimeException $e) {
-            return redirect()->route('sale')->with('status', $e->getMessage());
+            return redirect()->route('sale')->with('error', $e->getMessage());
         }
 
         return redirect()->route('sale')->with('status', "インポート完了: {$added}件の取引を登録しました");

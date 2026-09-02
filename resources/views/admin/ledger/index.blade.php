@@ -5,6 +5,9 @@
 @if (session('status'))
 <div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
 @endif
+@if (session('error'))
+<div class="card" style="background:#fff0f0; color:#b22; margin-bottom:12px">{{ session('error') }}</div>
+@endif
 <h2 class="pagettl">総勘定元帳</h2>
 @include('admin.partials.error-summary')
 <div class="lgLayout">

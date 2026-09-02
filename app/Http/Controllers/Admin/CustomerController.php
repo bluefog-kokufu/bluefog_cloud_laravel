@@ -201,7 +201,7 @@ class CustomerController extends Controller
         $added = 0;
 
         if (($handle = fopen($file->getRealPath(), 'r')) === false) {
-            return redirect()->route('customer')->with('status', 'CSVファイルを読み込めませんでした。');
+            return redirect()->route('customer')->with('error', 'CSVファイルを読み込めませんでした。');
         }
 
         $first = true;
@@ -212,7 +212,7 @@ class CustomerController extends Controller
                 if (! isset($row[0]) || $row[0] !== '会社名') {
                     fclose($handle);
 
-                    return redirect()->route('customer')->with('status', 'CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
+                    return redirect()->route('customer')->with('error', 'CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
                 }
                 continue;
             }

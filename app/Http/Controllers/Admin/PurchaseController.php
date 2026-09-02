@@ -90,7 +90,7 @@ class PurchaseController extends Controller
         try {
             $added = $this->purchaseService->importCsv($request->file('csv_file')->getRealPath());
         } catch (RuntimeException $e) {
-            return redirect()->route('purchase')->with('status', $e->getMessage());
+            return redirect()->route('purchase')->with('error', $e->getMessage());
         }
 
         return redirect()->route('purchase')->with('status', "インポート完了: {$added}件の取引を登録しました");

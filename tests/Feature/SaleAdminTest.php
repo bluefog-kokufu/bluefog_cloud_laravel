@@ -90,14 +90,16 @@ class SaleAdminTest extends TestCase
         $sale = Sale::create(['date' => '2026-08-01', 'cust_id' => $customer->id, 'method' => '現金', 'status' => '未請求', 'amount' => 1000, 'tax' => 100]);
         $sale->items()->create(['name' => '商品A', 'amount' => 1000, 'rate' => 10]);
 
+        // 請求書の閲覧自体は請求書発行日時を更新しない(請求書作成画面から明示的に作成した場合のみ更新される)
         $invoiceResponse = $this->actingAs($user)->get(route('sale.invoice', $sale));
         $invoiceResponse->assertOk();
         $invoiceResponse->assertSee('請 求 書', false);
-        $this->assertNotNull($sale->fresh()->invoiced);
+        $this->assertNull($sale->fresh()->invoiced);
 
         $issueResponse = $this->actingAs($user)->post(route('sale.issue', $sale));
         $issueResponse->assertRedirect(route('sale'));
         $this->assertSame('請求済', $sale->fresh()->status);
+        $this->assertNotNull($sale->fresh()->invoiced);
     }
 
     public function test_csv_import_groups_rows_by_sale_number_and_creates_missing_customer(): void

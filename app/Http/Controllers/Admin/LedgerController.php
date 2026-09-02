@@ -69,7 +69,7 @@ class LedgerController extends Controller
         try {
             $added = $this->ledgerService->importCsv($request->file('csv_file')->getRealPath());
         } catch (RuntimeException $e) {
-            return redirect()->route('ledger')->with('status', $e->getMessage());
+            return redirect()->route('ledger')->with('error', $e->getMessage());
         }
 
         return redirect()->route('ledger')->with('status', "インポート完了: {$added}件の仕訳を登録しました");
