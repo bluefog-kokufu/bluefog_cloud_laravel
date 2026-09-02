@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\PaymentNotice;
+use App\Support\Pagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface PaymentNoticeRepositoryInterface
@@ -10,7 +11,7 @@ interface PaymentNoticeRepositoryInterface
     /**
      * 絞り込み条件付きで支払通知書を取得する
      */
-    public function paginate(array $filters, int $perPage = 10): LengthAwarePaginator;
+    public function paginate(array $filters, int $perPage = Pagination::PER_PAGE): LengthAwarePaginator;
 
     /**
      * 取引先付きで1件の支払通知書を取得する

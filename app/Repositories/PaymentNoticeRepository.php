@@ -3,11 +3,12 @@
 namespace App\Repositories;
 
 use App\Models\PaymentNotice;
+use App\Support\Pagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class PaymentNoticeRepository implements PaymentNoticeRepositoryInterface
 {
-    public function paginate(array $filters, int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters, int $perPage = Pagination::PER_PAGE): LengthAwarePaginator
     {
         $from = $filters['from'] ?? null;
         $to = $filters['to'] ?? null;

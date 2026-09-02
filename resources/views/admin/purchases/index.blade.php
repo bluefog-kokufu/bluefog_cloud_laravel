@@ -6,6 +6,7 @@
 <div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
 @endif
 <h2 class="pagettl">取引書類一覧(仕入・アップロード)</h2>
+@include('admin.partials.error-summary')
 <div class="panel">
     <form method="GET" action="{{ route('purchase') }}" class="toolbar" style="gap:8px; align-items:center;">
         <input type="text" name="q" placeholder="No・取引先名で検索" value="{{ $filters['q'] ?? '' }}">

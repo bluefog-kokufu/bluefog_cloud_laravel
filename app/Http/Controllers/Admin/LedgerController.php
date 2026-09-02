@@ -9,6 +9,7 @@ use App\Services\LedgerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LedgerController extends Controller
@@ -65,7 +66,11 @@ class LedgerController extends Controller
 
     public function import(ImportLedgerCsvRequest $request): RedirectResponse
     {
-        $added = $this->ledgerService->importCsv($request->file('csv_file')->getRealPath());
+        try {
+            $added = $this->ledgerService->importCsv($request->file('csv_file')->getRealPath());
+        } catch (RuntimeException $e) {
+            return redirect()->route('ledger')->with('status', $e->getMessage());
+        }
 
         return redirect()->route('ledger')->with('status', "インポート完了: {$added}件の仕訳を登録しました");
     }

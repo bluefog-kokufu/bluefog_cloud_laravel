@@ -3,6 +3,7 @@
 @section('content')
 <div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / プロフィール</div>
 <h2 class="pagettl">プロフィール</h2>
+@include('admin.partials.error-summary')
 <div class="panel">
     <form method="POST" action="{{ route('profile.update') }}" class="card">
         @csrf

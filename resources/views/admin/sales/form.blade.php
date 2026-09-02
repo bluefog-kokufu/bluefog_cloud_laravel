@@ -4,6 +4,7 @@
 @endphp
 <div>
     <h3>{{ $sale ? '取引編集' : '取引作成' }}(売上)・インボイス対応請求書</h3>
+    @include('admin.partials.error-summary')
     <form method="POST" action="{{ $sale ? route('sale.update', $sale) : route('sale.store') }}">
         @csrf
         @if ($sale)
@@ -12,7 +13,7 @@
         <input type="hidden" name="sale_id" value="{{ $sale->id ?? '' }}">
         <div class="card">
             <div class="field">
-                <label><span class="req">必須</span>取引先名</label>
+                <label>取引先名<span class="req">必須</span></label>
                 <select name="cust_id">
                     <option value="">選択してください</option>
                     @foreach ($customers as $customer)
@@ -27,12 +28,12 @@
             </div>
             <div class="grid2">
                 <div class="field">
-                    <label><span class="req">必須</span>作成日</label>
+                    <label>作成日<span class="req">必須</span></label>
                     <input type="date" name="date" value="{{ old('date', optional($sale?->date)->format('Y-m-d')) }}">
                     @error('date')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label><span class="req">必須</span>入金方法</label>
+                    <label>入金方法<span class="req">必須</span></label>
                     <select name="method">
                         <option value="">選択してください</option>
                         @foreach (\App\Services\SaleService::METHODS as $method)
@@ -42,7 +43,7 @@
                     @error('method')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label><span class="req">必須</span>ステータス</label>
+                    <label>ステータス<span class="req">必須</span></label>
                     <select name="status">
                         @foreach (\App\Services\SaleService::STATUSES as $status)
                         <option value="{{ $status }}" {{ old('status', $sale->status ?? '未請求') === $status ? 'selected' : '' }}>{{ $status }}</option>
@@ -51,7 +52,7 @@
                     @error('status')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label>備考(請求書には表示されません)</label>
+                    <label>備考(請求書には表示されません)<span class="opt">任意</span></label>
                     <input type="text" name="memo" value="{{ old('memo', $sale->memo ?? '') }}">
                 </div>
             </div>
@@ -63,7 +64,7 @@
                 <div style="overflow-x:auto">
                     <table class="sheet" id="saleItems" data-next-index="{{ $rowCount }}">
                         <thead>
-                            <tr><th>品目・内容</th><th style="width:130px">税抜金額</th><th style="width:110px">税率</th><th style="width:110px">消費税額</th><th style="width:40px"></th></tr>
+                            <tr><th>品目・内容<span class="req" style="margin-left:4px">必須</span></th><th style="width:130px">税抜金額<span class="req" style="margin-left:4px">必須</span></th><th style="width:110px">税率<span class="req" style="margin-left:4px">必須</span></th><th style="width:110px">消費税額</th><th style="width:40px"></th></tr>
                         </thead>
                         <tbody id="saleItemsBody">
                             @foreach ($items as $i => $item)

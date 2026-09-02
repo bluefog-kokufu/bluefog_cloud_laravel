@@ -12,6 +12,7 @@ use App\Services\PurchaseService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PurchaseController extends Controller
@@ -86,7 +87,11 @@ class PurchaseController extends Controller
 
     public function import(ImportPurchaseCsvRequest $request): RedirectResponse
     {
-        $added = $this->purchaseService->importCsv($request->file('csv_file')->getRealPath());
+        try {
+            $added = $this->purchaseService->importCsv($request->file('csv_file')->getRealPath());
+        } catch (RuntimeException $e) {
+            return redirect()->route('purchase')->with('status', $e->getMessage());
+        }
 
         return redirect()->route('purchase')->with('status', "インポート完了: {$added}件の取引を登録しました");
     }

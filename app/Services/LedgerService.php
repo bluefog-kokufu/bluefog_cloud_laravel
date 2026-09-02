@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\LedgerEntryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use RuntimeException;
 
 class LedgerService
 {
@@ -143,9 +144,12 @@ class LedgerService
             if ($first) {
                 $first = false;
                 $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $row[0]);
-                if (($row[0] ?? null) === self::CSV_HEADER[0]) {
-                    continue;
+                if (($row[0] ?? null) !== self::CSV_HEADER[0]) {
+                    fclose($handle);
+
+                    throw new RuntimeException('CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
                 }
+                continue;
             }
 
             $no = trim((string) ($row[0] ?? ''));

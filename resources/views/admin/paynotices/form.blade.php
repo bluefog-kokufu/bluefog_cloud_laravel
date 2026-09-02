@@ -8,6 +8,7 @@ $rowCount = count($items);
 @section('content')
 <div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / <a href="{{ route('paynotice') }}">支払通知書一覧</a> / 支払通知書{{ $paymentNotice ? '編集' : '作成' }}</div>
 <h2 class="pagettl">支払通知書{{ $paymentNotice ? '編集' : '作成' }}</h2>
+@include('admin.partials.error-summary')
 <div class="panel">
     <form method="POST" action="{{ $paymentNotice ? route('paynotice.update', $paymentNotice) : route('paynotice.store') }}">
         @csrf
@@ -17,7 +18,7 @@ $rowCount = count($items);
         <div class="card">
             <div class="secttl"><span class="n">1</span>取引先情報</div>
             <div class="field">
-                <label><span class="req">必須</span>取引先名</label>
+                <label>取引先名<span class="req">必須</span></label>
                 <select name="cust_id">
                     <option value="">選択してください</option>
                     @foreach ($customers as $customer)
@@ -39,7 +40,7 @@ $rowCount = count($items);
             <div class="secttl"><span class="n">4</span>基本情報</div>
             <div class="grid2">
                 <div class="field">
-                    <label><span class="req">必須</span>支払日</label>
+                    <label>支払日<span class="req">必須</span></label>
                     <input type="date" name="pay_date" value="{{ old('pay_date', optional($paymentNotice?->pay_date)->format('Y-m-d') ?: now()->format('Y-m-d')) }}">
                     @error('pay_date')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
@@ -55,7 +56,7 @@ $rowCount = count($items);
                 </div>
             </div>
             <div class="field">
-                <label><span class="req">必須</span>件名</label>
+                <label>件名<span class="req">必須</span></label>
                 <input name="title" value="{{ old('title', $paymentNotice->title ?? '') }}">
                 @error('title')<div class="field-error">{{ $message }}</div>@enderror
             </div>

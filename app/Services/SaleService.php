@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SaleService
@@ -421,9 +422,12 @@ class SaleService
             if ($first) {
                 $first = false;
                 $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $row[0]);
-                if (($row[0] ?? null) === self::CSV_HEADER[0]) {
-                    continue;
+                if (($row[0] ?? null) !== self::CSV_HEADER[0]) {
+                    fclose($handle);
+
+                    throw new RuntimeException('CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
                 }
+                continue;
             }
 
             $custName = trim((string) ($row[2] ?? ''));

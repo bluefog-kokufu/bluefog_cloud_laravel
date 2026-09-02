@@ -4,15 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Support\Pagination;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CustomerController extends Controller
 {
+    /** 都道府県の選択肢(47都道府県固定) */
+    public const PREFS = [
+        '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+        '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+        '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
+    ];
     public function index(Request $request): View
     {
         $query = $request->query('q');
@@ -27,7 +35,7 @@ class CustomerController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(10)
+            ->paginate(Pagination::PER_PAGE)
             ->withQueryString();
 
         return view('admin.customers.index', compact('customers', 'query'));
@@ -52,17 +60,17 @@ class CustomerController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
             'zip' => ['nullable', 'string', 'max:20'],
-            'pref' => ['nullable', 'string', 'max:50'],
+            'pref' => ['nullable', 'string', Rule::in(self::PREFS)],
             'addr1' => ['nullable', 'string', 'max:255'],
             'addr2' => ['nullable', 'string', 'max:255'],
-            'tel' => ['nullable', 'string', 'max:50'],
-            'mobile' => ['nullable', 'string', 'max:50'],
-            'fax' => ['nullable', 'string', 'max:50'],
-            'url' => ['nullable', 'string', 'max:255'],
+            'tel' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'mobile' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'fax' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'url' => ['nullable', 'url', 'max:255'],
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ], [], $this->attributeNames());
+        ], $this->phoneMessages(), $this->attributeNames());
 
         // モーダルからの登録時は、この画面自体のリダイレクトによるJSON判定(shouldRenderJsonWhen)が
         // api/*配下しか対象にしないため、バリデーション失敗時は明示的にJSONで返す
@@ -86,25 +94,35 @@ class CustomerController extends Controller
         return view('admin.customers.modal_edit', compact('customer'))->render();
     }
 
-    public function update(Request $request, Customer $customer): RedirectResponse
+    public function update(Request $request, Customer $customer): RedirectResponse|JsonResponse
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
             'zip' => ['nullable', 'string', 'max:20'],
-            'pref' => ['nullable', 'string', 'max:50'],
+            'pref' => ['nullable', 'string', Rule::in(self::PREFS)],
             'addr1' => ['nullable', 'string', 'max:255'],
             'addr2' => ['nullable', 'string', 'max:255'],
-            'tel' => ['nullable', 'string', 'max:50'],
-            'mobile' => ['nullable', 'string', 'max:50'],
-            'fax' => ['nullable', 'string', 'max:50'],
-            'url' => ['nullable', 'string', 'max:255'],
+            'tel' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'mobile' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'fax' => ['nullable', 'string', 'max:50', 'regex:/^[0-9\-]+$/'],
+            'url' => ['nullable', 'url', 'max:255'],
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ], [], $this->attributeNames());
+        ], $this->phoneMessages(), $this->attributeNames());
+
+        // モーダルからの更新時は、モーダルを離脱せずエラーを表示できるよう明示的にJSONで返す
+        if ($validator->fails() && $request->wantsJson()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+        $data = $validator->validate();
 
         $customer->update($data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'updated']);
+        }
 
         return redirect()->route('customer')->with('status', '顧客を更新しました。');
     }
@@ -191,9 +209,12 @@ class CustomerController extends Controller
             if ($first) {
                 $first = false;
                 $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', $row[0]);
-                if (isset($row[0]) && $row[0] === '会社名') {
-                    continue;
+                if (! isset($row[0]) || $row[0] !== '会社名') {
+                    fclose($handle);
+
+                    return redirect()->route('customer')->with('status', 'CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
                 }
+                continue;
             }
 
             $name = trim((string) ($row[0] ?? ''));
@@ -249,6 +270,18 @@ class CustomerController extends Controller
             'person' => '担当者名',
             'email' => 'メールアドレス',
             'memo' => 'メモ',
+        ];
+    }
+
+    /**
+     * 電話番号系項目(半角数字とハイフンのみ許容)のエラーメッセージ
+     */
+    private function phoneMessages(): array
+    {
+        return [
+            'tel.regex' => '無効な電話番号です。',
+            'mobile.regex' => '無効な電話番号です。',
+            'fax.regex' => '無効な電話番号です。',
         ];
     }
 }

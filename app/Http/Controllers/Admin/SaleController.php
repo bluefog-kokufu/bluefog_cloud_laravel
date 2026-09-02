@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SaleController extends Controller
@@ -136,7 +137,11 @@ class SaleController extends Controller
 
     public function import(ImportSaleCsvRequest $request): RedirectResponse
     {
-        $added = $this->saleService->importCsv($request->file('csv_file')->getRealPath());
+        try {
+            $added = $this->saleService->importCsv($request->file('csv_file')->getRealPath());
+        } catch (RuntimeException $e) {
+            return redirect()->route('sale')->with('status', $e->getMessage());
+        }
 
         return redirect()->route('sale')->with('status', "インポート完了: {$added}件の取引を登録しました");
     }

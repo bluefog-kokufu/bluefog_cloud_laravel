@@ -26,9 +26,9 @@ class StorePurchaseRequest extends FormRequest
             'tax' => ['required', 'integer', 'min:0'],
             'status' => ['required', 'string', 'in:未払い,支払い済'],
             'memo' => ['nullable', 'string'],
-            'quote' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'invoice' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
-            'receipt' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'quote' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'invoice' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'receipt' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'contract' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
         ];
     }

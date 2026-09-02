@@ -12,6 +12,7 @@
 <div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
 @endif
 <h2 class="pagettl">貸借対照表</h2>
+@include('admin.partials.error-summary')
 <div class="panel">
     <form method="POST" action="{{ route('bs.update') }}">
         @csrf

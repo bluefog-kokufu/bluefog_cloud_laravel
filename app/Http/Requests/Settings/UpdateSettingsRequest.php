@@ -21,10 +21,10 @@ class UpdateSettingsRequest extends FormRequest
             'tax_rate' => ['required', 'integer', Rule::in(SettingsService::TAX_RATES)],
             'rounding' => ['required', 'string', Rule::in(array_keys(SettingsService::ROUNDING_OPTIONS))],
             'name' => ['required', 'string', 'max:255'],
-            'reg_no' => ['nullable', 'string', 'max:50'],
-            'zip' => ['nullable', 'string', 'max:20'],
-            'tel' => ['nullable', 'string', 'max:50'],
-            'addr' => ['nullable', 'string', 'max:255'],
+            'reg_no' => ['required', 'string', 'max:50'],
+            'zip' => ['required', 'string', 'max:20'],
+            'tel' => ['required', 'string', 'max:50'],
+            'addr' => ['required', 'string', 'max:255'],
             'bank' => ['nullable', 'string', 'max:255'],
         ];
     }

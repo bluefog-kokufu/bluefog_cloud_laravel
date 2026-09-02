@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Sale;
+use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -11,7 +12,7 @@ interface SaleRepositoryInterface
     /**
      * 絞り込み条件付きで受注取引を取得する
      */
-    public function paginate(array $filters, int $perPage = 10): LengthAwarePaginator;
+    public function paginate(array $filters, int $perPage = Pagination::PER_PAGE): LengthAwarePaginator;
 
     /**
      * CSVエクスポート用に全ての受注取引を明細付きで取得する

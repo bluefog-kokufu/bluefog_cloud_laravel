@@ -102,6 +102,75 @@ function customerEdit(id){
     .then(html => openModal(html))
     .catch(error => alert(error.message));
 }
+/* モーダルを離脱せずに保存する。バリデーション失敗時はモーダル内にエラーを表示し、
+   成功時はモーダルを閉じて一覧を再読み込みする */
+function customerEditSave(id){
+  const form = document.getElementById('customer-edit-form');
+  if (!form) {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  const formData = new FormData(form);
+  fetch(`/customer/${encodeURIComponent(id)}`, {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token || '', Accept: 'application/json' },
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(data => { throw { errors: data.errors || {} }; });
+      }
+      return response.json();
+    })
+    .then(() => {
+      closeModal();
+      location.reload();
+    })
+    .catch(error => {
+      if (error && error.errors) {
+        customerEditShowErrors(error.errors);
+      } else {
+        alert('更新に失敗しました。');
+      }
+    });
+}
+/* エラー内容をモーダル内(項目ごと1件のインライン表示 + 上部の一覧表示)に反映する */
+function customerEditShowErrors(errors){
+  const form = document.getElementById('customer-edit-form');
+  if (!form) {
+    return;
+  }
+  form.querySelectorAll('.error').forEach(el => el.remove());
+  document.getElementById('customerEditErrorSummary')?.remove();
+
+  const messages = Object.values(errors).map(list => list[0]);
+  if (messages.length) {
+    const summary = document.createElement('div');
+    summary.id = 'customerEditErrorSummary';
+    summary.className = 'card';
+    summary.style.cssText = 'background:#fff0f0;color:#b22;margin-bottom:12px';
+    const ul = document.createElement('ul');
+    ul.style.cssText = 'margin:0;padding-left:18px';
+    messages.forEach(message => {
+      const li = document.createElement('li');
+      li.textContent = message;
+      ul.appendChild(li);
+    });
+    summary.appendChild(ul);
+    form.prepend(summary);
+  }
+
+  Object.entries(errors).forEach(([field, list]) => {
+    const input = form.querySelector(`[name="${field}"]`);
+    const container = input ? input.closest('.field') : null;
+    if (container) {
+      const div = document.createElement('div');
+      div.className = 'error';
+      div.textContent = list[0];
+      container.appendChild(div);
+    }
+  });
+}
 function customerDelete(id){
   if (!confirm('この顧客を削除しますか？')) {
     return;
@@ -939,6 +1008,7 @@ window.fillAddressFromZip = fillAddressFromZip;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.customerEdit = customerEdit;
+window.customerEditSave = customerEditSave;
 window.customerDelete = customerDelete;
 window.customerQuickCreate = customerQuickCreate;
 window.customerQuickSave = customerQuickSave;

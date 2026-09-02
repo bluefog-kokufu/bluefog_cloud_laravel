@@ -6,6 +6,7 @@
 <div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
 @endif
 <h2 class="pagettl">顧客一覧</h2>
+@include('admin.partials.error-summary')
 <div class="panel">
     <form method="GET" action="{{ route('customer') }}" class="toolbar" style="gap:8px; align-items:center;">
         <input type="text" name="q" class="input" placeholder="会社名・担当者・メール等で検索" value="{{ old('q', $query ?? request('q')) }}">

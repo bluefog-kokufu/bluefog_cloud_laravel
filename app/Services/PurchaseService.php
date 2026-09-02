@@ -9,6 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PurchaseService
@@ -170,9 +171,12 @@ class PurchaseService
             if ($first) {
                 $first = false;
                 $row[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) ($row[0] ?? ''));
-                if (($row[0] ?? null) === self::CSV_HEADER[0] || ($row[0] ?? null) === '取引年月日') {
-                    continue;
+                if (($row[0] ?? null) !== self::CSV_HEADER[0] && ($row[0] ?? null) !== '取引年月日') {
+                    fclose($handle);
+
+                    throw new RuntimeException('CSVファイルの形式が正しくありません。「CSVテンプレート」からダウンロードした形式でアップロードしてください。');
                 }
+                continue;
             }
 
             $offset = preg_match('/^\d{4}-\d{2}-\d{2}$/', trim((string) ($row[0] ?? ''))) ? 0 : 1;

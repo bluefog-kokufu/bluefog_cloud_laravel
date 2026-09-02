@@ -3,12 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Sale;
+use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class SaleRepository implements SaleRepositoryInterface
 {
-    public function paginate(array $filters, int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters, int $perPage = Pagination::PER_PAGE): LengthAwarePaginator
     {
         $query = $filters['q'] ?? null;
         $method = $filters['method'] ?? null;
