@@ -862,9 +862,9 @@ function ledgerRowAdd(){
     <td><input type="text" name="rows[${index}][m]" style="width:44px;text-align:center"></td>
     <td><input type="text" name="rows[${index}][d]" style="width:44px;text-align:center"></td>
     <td><input type="text" name="rows[${index}][dr_acct]" list="acctList" style="width:110px" oninput="ledgerRowSync(this)"></td>
-    <td><input type="number" name="rows[${index}][dr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+    <td><input type="text" inputmode="numeric" name="rows[${index}][dr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)" onblur="ledgerAmountBlur(this)"></td>
     <td><input type="text" name="rows[${index}][cr_acct]" list="acctList" style="width:110px" oninput="ledgerRowSync(this)"></td>
-    <td><input type="number" name="rows[${index}][cr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+    <td><input type="text" inputmode="numeric" name="rows[${index}][cr_amt]" class="num" style="width:100px;text-align:right" oninput="ledgerRowSync(this)" onblur="ledgerAmountBlur(this)"></td>
     <td class="muted lg-acct-pair" style="padding:4px 8px"></td>
     <td><input type="text" name="rows[${index}][note]" style="width:140px"></td>
     <td><input type="text" name="rows[${index}][page]" style="width:44px;text-align:center"></td>
@@ -886,8 +886,8 @@ function ledgerRowSync(el){
   }
   const drAcct = tr.querySelector('input[name$="[dr_acct]"]')?.value || '';
   const crAcct = tr.querySelector('input[name$="[cr_acct]"]')?.value || '';
-  const drAmt = Number(tr.querySelector('input[name$="[dr_amt]"]')?.value) || 0;
-  const crAmt = Number(tr.querySelector('input[name$="[cr_amt]"]')?.value) || 0;
+  const drAmt = parseNum(tr.querySelector('input[name$="[dr_amt]"]')?.value);
+  const crAmt = parseNum(tr.querySelector('input[name$="[cr_amt]"]')?.value);
   const pairEl = tr.querySelector('.lg-acct-pair');
   const drMirrorEl = tr.querySelector('.lg-dr-mirror');
   const crMirrorEl = tr.querySelector('.lg-cr-mirror');
@@ -896,11 +896,15 @@ function ledgerRowSync(el){
   if (crMirrorEl) crMirrorEl.textContent = crAmt ? num(crAmt) : '';
   ledgerRecalcAll();
 }
+function ledgerAmountBlur(el){
+  el.value = parseNum(el.value) ? num(parseNum(el.value)) : '';
+  ledgerRowSync(el);
+}
 function ledgerRecalcAll(){
   let dr = 0, cr = 0;
   document.querySelectorAll('#lgTableBody tr').forEach(tr => {
-    dr += Number(tr.querySelector('input[name$="[dr_amt]"]')?.value) || 0;
-    cr += Number(tr.querySelector('input[name$="[cr_amt]"]')?.value) || 0;
+    dr += parseNum(tr.querySelector('input[name$="[dr_amt]"]')?.value);
+    cr += parseNum(tr.querySelector('input[name$="[cr_amt]"]')?.value);
   });
   const drEl = document.getElementById('lgDrTotal');
   const crEl = document.getElementById('lgCrTotal');
@@ -968,6 +972,7 @@ window.cfRecalcAll = cfRecalcAll;
 window.ledgerRowAdd = ledgerRowAdd;
 window.ledgerRowDel = ledgerRowDel;
 window.ledgerRowSync = ledgerRowSync;
+window.ledgerAmountBlur = ledgerAmountBlur;
 window.ledgerRecalcAll = ledgerRecalcAll;
 $("#modalBg") && document.addEventListener("click",e=>{if(e.target.id==="modalBg")closeModal();});
 /* ================= auth ================= */

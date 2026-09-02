@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @php
-    $items = old('items', $paymentNotice?->items ?? [['date' => now()->format('Y-m-d'), 'item' => '', 'price' => '', 'unit' => '式', 'qty' => 1, 'tax' => '10%']]);
-    $rowCount = count($items);
+$items = old('items', $paymentNotice?->items ?? [['date' => now()->format('Y-m-d'), 'item' => '', 'price' => '', 'unit' => '式', 'qty' => 1, 'tax' => '10%']]);
+$rowCount = count($items);
 @endphp
 
 @section('content')
@@ -78,6 +78,11 @@
                         </tr>
                     </thead>
                     <tbody id="paynoticeItemsBody">
+                        @if (empty($items))
+                        <tr>
+                            <td colspan="8">明細がありません。「明細を新規登録」で追加してください。</td>
+                        </tr>
+                        @else
                         @foreach ($items as $i => $item)
                         <tr>
                             <td><input type="date" name="items[{{ $i }}][date]" value="{{ $item['date'] ?? '' }}" style="width:140px" oninput="paynoticeRowRecalc(this)"></td>
@@ -96,26 +101,36 @@
                             <td><button type="button" class="icon-btn" onclick="paynoticeItemDel(this)">🗑</button></td>
                         </tr>
                         @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
             @error('items')<div class="field-error">{{ $message }}</div>@enderror
             @foreach ($errors->get('items.*.date') as $messages)
-                @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
+            @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
             @endforeach
             @foreach ($errors->get('items.*.item') as $messages)
-                @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
+            @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
             @endforeach
             @foreach ($errors->get('items.*.price') as $messages)
-                @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
+            @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
             @endforeach
             @foreach ($errors->get('items.*.qty') as $messages)
-                @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
+            @foreach ($messages as $message)<div class="field-error">{{ $message }}</div>@endforeach
             @endforeach
             <table class="sheet" style="max-width:360px;margin-left:auto;margin-top:12px">
-                <tr><td>小計</td><td class="num" id="pnSub" style="padding:4px 8px;width:160px">¥0</td></tr>
-                <tr><td>消費税</td><td class="num" id="pnTax" style="padding:4px 8px">¥0</td></tr>
-                <tr><td class="total">合計(税込み)</td><td class="total num" id="pnTotal" style="padding:4px 8px">¥0</td></tr>
+                <tr>
+                    <td>小計</td>
+                    <td class="num" id="pnSub" style="padding:4px 8px;width:160px">¥0</td>
+                </tr>
+                <tr>
+                    <td>消費税</td>
+                    <td class="num" id="pnTax" style="padding:4px 8px">¥0</td>
+                </tr>
+                <tr>
+                    <td class="total">合計(税込み)</td>
+                    <td class="total num" id="pnTotal" style="padding:4px 8px">¥0</td>
+                </tr>
             </table>
         </div>
         <div class="formfoot">

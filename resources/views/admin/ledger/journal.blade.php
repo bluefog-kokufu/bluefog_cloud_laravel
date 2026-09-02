@@ -27,9 +27,9 @@
                     <td><input type="text" name="rows[{{ $i }}][m]" value="{{ $r['m'] ?? '' }}" style="width:44px;text-align:center"></td>
                     <td><input type="text" name="rows[{{ $i }}][d]" value="{{ $r['d'] ?? '' }}" style="width:44px;text-align:center"></td>
                     <td><input type="text" name="rows[{{ $i }}][dr_acct]" list="acctList" value="{{ $r['dr_acct'] ?? '' }}" style="width:110px" oninput="ledgerRowSync(this)"></td>
-                    <td><input type="number" name="rows[{{ $i }}][dr_amt]" class="num" value="{{ $r['dr_amt'] ?? '' }}" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+                    <td><input type="text" inputmode="numeric" name="rows[{{ $i }}][dr_amt]" class="num" value="{{ ($r['dr_amt'] ?? '') !== '' ? number_format($r['dr_amt']) : '' }}" style="width:100px;text-align:right" oninput="ledgerRowSync(this)" onblur="ledgerAmountBlur(this)"></td>
                     <td><input type="text" name="rows[{{ $i }}][cr_acct]" list="acctList" value="{{ $r['cr_acct'] ?? '' }}" style="width:110px" oninput="ledgerRowSync(this)"></td>
-                    <td><input type="number" name="rows[{{ $i }}][cr_amt]" class="num" value="{{ $r['cr_amt'] ?? '' }}" style="width:100px;text-align:right" oninput="ledgerRowSync(this)"></td>
+                    <td><input type="text" inputmode="numeric" name="rows[{{ $i }}][cr_amt]" class="num" value="{{ ($r['cr_amt'] ?? '') !== '' ? number_format($r['cr_amt']) : '' }}" style="width:100px;text-align:right" oninput="ledgerRowSync(this)" onblur="ledgerAmountBlur(this)"></td>
                     <td class="muted lg-acct-pair" style="padding:4px 8px">{{ implode('／', array_filter([$r['dr_acct'] ?? '', $r['cr_acct'] ?? ''])) }}</td>
                     <td><input type="text" name="rows[{{ $i }}][note]" value="{{ $r['note'] ?? '' }}" style="width:140px"></td>
                     <td><input type="text" name="rows[{{ $i }}][page]" value="{{ $r['page'] ?? '' }}" style="width:44px;text-align:center"></td>

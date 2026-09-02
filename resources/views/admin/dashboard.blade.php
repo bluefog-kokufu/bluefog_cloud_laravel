@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / マイページ</div>
 <h2 class="pagettl">マイページトップ</h2>
 <div class="cards">
     <div class="stat">
@@ -38,11 +39,11 @@
     <div class="card">
         <b style="color:var(--navy)">クイックメニュー</b>
         <div class="toolbar" style="margin-top:10px">
-            <button class="btn accent small" onclick="show('customers')">顧客管理</button>
-            <button class="btn accent small" onclick="show('sales')">取引管理(売上)</button>
-            <button class="btn accent small" onclick="show('purchases')">取引書類(仕入)</button>
-            <button class="btn accent small" onclick="show('ledger')">総勘定元帳</button>
-            <button class="btn accent small" onclick="show('bs')">財務三表</button>
+            <a class="btn accent small" href="{{ route('customer') }}">顧客管理</a>
+            <a class="btn accent small" href="{{ route('sale') }}">取引管理(売上)</a>
+            <a class="btn accent small" href="{{ route('purchase') }}">取引書類(仕入)</a>
+            <a class="btn accent small" href="{{ route('ledger') }}">総勘定元帳</a>
+            <a class="btn accent small" href="{{ route('bs') }}">財務三表</a>
         </div>
     </div>
 </div>

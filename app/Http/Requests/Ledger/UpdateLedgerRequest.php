@@ -13,6 +13,24 @@ class UpdateLedgerRequest extends FormRequest
         return true;
     }
 
+    /**
+     * 金額入力欄はカンマ区切りで表示しているため、バリデーション前にカンマを取り除く
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'rows' => collect($this->input('rows') ?? [])->map(function ($row) {
+                foreach (['dr_amt', 'cr_amt'] as $key) {
+                    if (isset($row[$key]) && $row[$key] !== '') {
+                        $row[$key] = (int) str_replace(',', '', (string) $row[$key]);
+                    }
+                }
+
+                return $row;
+            })->all(),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
