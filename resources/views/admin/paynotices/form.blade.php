@@ -78,11 +78,6 @@ $rowCount = count($items);
                         </tr>
                     </thead>
                     <tbody id="paynoticeItemsBody">
-                        @if (empty($items))
-                        <tr>
-                            <td colspan="8">明細がありません。「明細を新規登録」で追加してください。</td>
-                        </tr>
-                        @else
                         @foreach ($items as $i => $item)
                         <tr>
                             <td><input type="date" name="items[{{ $i }}][date]" value="{{ $item['date'] ?? '' }}" style="width:140px" oninput="paynoticeRowRecalc(this)"></td>
@@ -101,7 +96,6 @@ $rowCount = count($items);
                             <td><button type="button" class="icon-btn" onclick="paynoticeItemDel(this)">🗑</button></td>
                         </tr>
                         @endforeach
-                        @endif
                     </tbody>
                 </table>
             </div>

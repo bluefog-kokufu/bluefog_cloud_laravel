@@ -647,6 +647,7 @@ function paynoticeItemAdd(){
   if (!table || !tbody) {
     return;
   }
+  tbody.querySelector('.paynotice-empty')?.remove();
   const index = Number(table.dataset.nextIndex || tbody.children.length);
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -667,8 +668,21 @@ function paynoticeItemAdd(){
   table.dataset.nextIndex = String(index + 1);
 }
 function paynoticeItemDel(btn){
+  debugger;
   btn.closest('tr')?.remove();
+  paynoticeEnsureEmptyRow();
   paynoticeRecalcAll();
+}
+/* 明細を全て削除した場合、サーバー初期表示と同じ「明細がありません」の行を表示する */
+function paynoticeEnsureEmptyRow(){
+  const tbody = document.getElementById('paynoticeItemsBody');
+  if (!tbody || tbody.children.length > 0) {
+    return;
+  }
+  const tr = document.createElement('tr');
+  tr.className = 'paynotice-empty';
+  tr.innerHTML = '<td colspan="8" style="text-align:center">明細がありません。「明細を新規登録」で追加してください。</td>';
+  tbody.appendChild(tr);
 }
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('paynoticeItems')) paynoticeRecalcAll();
