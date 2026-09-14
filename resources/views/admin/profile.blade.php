@@ -2,12 +2,11 @@
 
 @section('content')
 <div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / プロフィール</div>
-<h2 class="pagettl">プロフィール</h2>
+<h2 class="pagettl">プロフィール編集</h2>
 @include('admin.partials.error-summary')
 <div class="panel">
     <form method="POST" action="{{ route('profile.update') }}" class="card">
         @csrf
-        <div class="secttl">プロフィール編集</div>
 
         @if (session('profile_success'))
         <div class="success-inline">{{ session('profile_success') }}</div>
