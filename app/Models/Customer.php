@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\ZipCode;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -44,5 +46,15 @@ class Customer extends Model
                 $model->id = 'c' . Str::random(8);
             }
         });
+    }
+
+    /**
+     * 郵便番号はハイフンなしで保存されていても、表示時は常にハイフン付きにする
+     */
+    protected function zip(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ZipCode::format($value),
+        );
     }
 }

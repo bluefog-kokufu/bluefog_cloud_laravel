@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Support\ContentDisposition;
 use App\Support\Pagination;
+use App\Support\ZipCode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,7 +61,7 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
-            'zip' => ['nullable', 'string', 'max:20'],
+            'zip' => ['nullable', 'string', 'max:20', 'regex:'.ZipCode::PATTERN],
             'pref' => ['nullable', 'string', Rule::in(self::PREFS)],
             'addr1' => ['nullable', 'string', 'max:255'],
             'addr2' => ['nullable', 'string', 'max:255'],
@@ -71,7 +72,7 @@ class CustomerController extends Controller
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ], $this->phoneMessages(), $this->attributeNames());
+        ], $this->formatMessages(), $this->attributeNames());
 
         // モーダルからの登録時は、この画面自体のリダイレクトによるJSON判定(shouldRenderJsonWhen)が
         // api/*配下しか対象にしないため、バリデーション失敗時は明示的にJSONで返す
@@ -100,7 +101,7 @@ class CustomerController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:受注取引管理,発注取引管理,両方で使用する'],
-            'zip' => ['nullable', 'string', 'max:20'],
+            'zip' => ['nullable', 'string', 'max:20', 'regex:'.ZipCode::PATTERN],
             'pref' => ['nullable', 'string', Rule::in(self::PREFS)],
             'addr1' => ['nullable', 'string', 'max:255'],
             'addr2' => ['nullable', 'string', 'max:255'],
@@ -111,7 +112,7 @@ class CustomerController extends Controller
             'person' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'memo' => ['nullable', 'string'],
-        ], $this->phoneMessages(), $this->attributeNames());
+        ], $this->formatMessages(), $this->attributeNames());
 
         // モーダルからの更新時は、モーダルを離脱せずエラーを表示できるよう明示的にJSONで返す
         if ($validator->fails() && $request->wantsJson()) {
@@ -275,14 +276,15 @@ class CustomerController extends Controller
     }
 
     /**
-     * 電話番号系項目(半角数字とハイフンのみ許容)のエラーメッセージ
+     * 電話番号・郵便番号など形式チェックのあるエラーメッセージ
      */
-    private function phoneMessages(): array
+    private function formatMessages(): array
     {
         return [
             'tel.regex' => '無効な電話番号です。',
             'mobile.regex' => '無効な電話番号です。',
             'fax.regex' => '無効な電話番号です。',
+            'zip.regex' => '郵便番号の形式が正しくありません。(例: 601-8151)',
         ];
     }
 }

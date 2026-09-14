@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Settings;
 
 use App\Services\SettingsService;
+use App\Support\ZipCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,10 +23,17 @@ class UpdateSettingsRequest extends FormRequest
             'rounding' => ['required', 'string', Rule::in(array_keys(SettingsService::ROUNDING_OPTIONS))],
             'name' => ['required', 'string', 'max:255'],
             'reg_no' => ['required', 'string', 'max:50'],
-            'zip' => ['required', 'string', 'max:20'],
+            'zip' => ['required', 'string', 'max:20', 'regex:'.ZipCode::PATTERN],
             'tel' => ['required', 'string', 'max:50'],
             'addr' => ['required', 'string', 'max:255'],
             'bank' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'zip.regex' => '郵便番号の形式が正しくありません。(例: 601-8151)',
         ];
     }
 
