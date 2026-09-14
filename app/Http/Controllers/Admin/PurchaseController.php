@@ -9,6 +9,7 @@ use App\Http\Requests\Purchase\UpdatePurchaseRequest;
 use App\Models\Customer;
 use App\Models\Purchase;
 use App\Services\PurchaseService;
+use App\Support\ContentDisposition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -115,7 +116,7 @@ class PurchaseController extends Controller
     {
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => ContentDisposition::attachment($filename),
         ];
 
         $callback = function () use ($rows) {

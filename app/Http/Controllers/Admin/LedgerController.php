@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Ledger\ImportLedgerCsvRequest;
 use App\Http\Requests\Ledger\UpdateLedgerRequest;
 use App\Services\LedgerService;
+use App\Support\ContentDisposition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -49,7 +50,7 @@ class LedgerController extends Controller
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="総勘定元帳.csv"',
+            'Content-Disposition' => ContentDisposition::attachment('総勘定元帳.csv'),
         ];
 
         $callback = function () use ($rows) {

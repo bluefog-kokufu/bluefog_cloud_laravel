@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Support\ContentDisposition;
 use App\Support\Pagination;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -139,7 +140,7 @@ class CustomerController extends Controller
         $filename = '顧客一覧_テンプレート.csv';
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => ContentDisposition::attachment($filename),
         ];
 
         $callback = function () {
@@ -158,7 +159,7 @@ class CustomerController extends Controller
         $filename = '顧客一覧.csv';
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => ContentDisposition::attachment($filename),
         ];
 
         $callback = function () {

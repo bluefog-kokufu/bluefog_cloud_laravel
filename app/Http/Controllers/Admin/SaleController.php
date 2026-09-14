@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Repositories\SaleRepositoryInterface;
 use App\Services\SaleService;
+use App\Support\ContentDisposition;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -165,7 +166,7 @@ class SaleController extends Controller
     {
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Disposition' => ContentDisposition::attachment($filename),
         ];
 
         $callback = function () use ($rows) {
