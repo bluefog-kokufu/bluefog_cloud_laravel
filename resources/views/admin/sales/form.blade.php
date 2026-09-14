@@ -13,7 +13,7 @@
         <input type="hidden" name="sale_id" value="{{ $sale->id ?? '' }}">
         <div class="card">
             <div class="field">
-                <label>取引先名<span class="req">必須</span></label>
+                <label><span class="req">必須</span>取引先名</label>
                 <select name="cust_id">
                     <option value="">選択してください</option>
                     @foreach ($customers as $customer)
@@ -28,12 +28,12 @@
             </div>
             <div class="grid2">
                 <div class="field">
-                    <label>作成日<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>作成日</label>
                     <input type="date" name="date" value="{{ old('date', optional($sale?->date)->format('Y-m-d')) }}">
                     @error('date')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label>入金方法<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>入金方法</label>
                     <select name="method">
                         <option value="">選択してください</option>
                         @foreach (\App\Services\SaleService::METHODS as $method)
@@ -43,7 +43,7 @@
                     @error('method')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label>ステータス<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>ステータス</label>
                     <select name="status">
                         @foreach (\App\Services\SaleService::STATUSES as $status)
                         <option value="{{ $status }}" {{ old('status', $sale->status ?? '未請求') === $status ? 'selected' : '' }}>{{ $status }}</option>
@@ -52,7 +52,7 @@
                     @error('status')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label>備考(請求書には表示されません)<span class="opt">任意</span></label>
+                    <label><span class="opt">任意</span>備考(請求書には表示されません)</label>
                     <input type="text" name="memo" value="{{ old('memo', $sale->memo ?? '') }}">
                 </div>
             </div>

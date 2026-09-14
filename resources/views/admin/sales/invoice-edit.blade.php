@@ -16,7 +16,7 @@
         <div class="card">
             <div class="secttl"><span class="n">1</span>取引先情報</div>
             <div class="field">
-                <label>取引先名<span class="req">必須</span></label>
+                <label><span class="req">必須</span>取引先名</label>
                 <select name="cust_id">
                     <option value="">選択してください</option>
                     @foreach ($customers as $customer)
@@ -78,19 +78,19 @@
             <div class="secttl"><span class="n">4</span>基本情報</div>
             <div class="grid2">
                 <div class="field">
-                    <label>請求日<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>請求日</label>
                     <input type="date" name="invoice_date" value="{{ old('invoice_date', optional($sale->invoice_date)->format('Y-m-d') ?: now()->format('Y-m-d')) }}">
                     @error('invoice_date')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="field">
-                    <label>支払期日<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>支払期日</label>
                     <input type="date" name="due_date" value="{{ old('due_date', optional($sale->due_date)->format('Y-m-d') ?: now()->addDays(30)->format('Y-m-d')) }}">
                     @error('due_date')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
             </div>
             <div class="grid2">
                 <div class="field">
-                    <label>請求書番号<span class="req">必須</span></label>
+                    <label><span class="req">必須</span>請求書番号</label>
                     <input type="text" name="invoice_no" id="inv_no" value="{{ old('invoice_no', $sale->invoice_no ?: $invoiceNo) }}" readonly style="background:#eef2f8">
                     @if ($sale->invoice_no)
                     <div class="muted">確定済みの番号です(変更不可)</div>

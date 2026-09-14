@@ -11,7 +11,7 @@
             <div class="grid2">
                 <div>
                     <div class="field">
-                        <label>取引先名<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>取引先名</label>
                         <select name="cust_id">
                             <option value="">選択してください</option>
                             @foreach ($customers as $customer)
@@ -25,12 +25,12 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label>取引年月日<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>取引年月日</label>
                         <input type="date" name="date" value="{{ old('date', optional($purchase?->date)->format('Y-m-d')) }}">
                         @error('date')<div class="field-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="field">
-                        <label>入金方法<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>入金方法</label>
                         <select name="method">
                             <option value="">選択してください</option>
                             @foreach (\App\Services\PurchaseService::METHODS as $method)
@@ -40,19 +40,19 @@
                         @error('method')<div class="field-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="field">
-                        <label>取引金額(税抜)<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>取引金額(税抜)</label>
                         <input type="number" name="amount" value="{{ old('amount', $purchase->amount ?? '') }}" oninput="purchaseAmountInput(this)">
                         <div class="hint">半角数字のみ入力可</div>
                         @error('amount')<div class="field-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="field">
-                        <label>税額<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>税額</label>
                         <input type="number" name="tax" id="pf_tax" value="{{ old('tax', $purchase->tax ?? '') }}">
                         <div class="hint">半角数字のみ入力可</div>
                         @error('tax')<div class="field-error">{{ $message }}</div>@enderror
                     </div>
                     <div class="field">
-                        <label>ステータス<span class="req">必須</span></label>
+                        <label><span class="req">必須</span>ステータス</label>
                         <select name="status">
                             @foreach (\App\Services\PurchaseService::STATUSES as $status)
                             <option value="{{ $status }}" {{ old('status', $purchase->status ?? '未払い') === $status ? 'selected' : '' }}>{{ $status }}</option>
@@ -70,7 +70,7 @@
                         $formatHint = $isContract ? 'PDF, JPG, PNG (10MBまで)' : 'PDFのみ (10MBまで)';
                     @endphp
                     <div class="field">
-                        <label>{{ $label }}<span class="opt">任意</span></label>
+                        <label><span class="opt">任意</span>{{ $label }}</label>
                         <div class="upload-box {{ $existing ? 'has' : '' }}">
                             @if ($existing)
                             ✓ アップロード済み: {{ $existing['name'] }}
@@ -84,7 +84,7 @@
                     </div>
                     @endforeach
                     <div class="field">
-                        <label>メモ<span class="opt">任意</span></label>
+                        <label><span class="opt">任意</span>メモ</label>
                         <textarea name="memo" rows="2">{{ old('memo', $purchase->memo ?? '') }}</textarea>
                     </div>
                 </div>
