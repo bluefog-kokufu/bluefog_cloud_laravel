@@ -43,7 +43,7 @@
                 @forelse ($customers as $customer)
                 <tr>
                     <td class="muted" style="max-width:170px;overflow:hidden;text-overflow:ellipsis">{{ $customer->id }}</td>
-                    <td>{{ $customer->name }}</td>
+                    <td><a onclick="customerEdit('{{ $customer->id }}')">{{ $customer->name }}</a></td>
                     <td>{{ $customer->tel ?? '-' }}</td>
                     <td>{{ $customer->person ?? '-' }}</td>
                     <td>{{ $customer->email ?? '-' }}</td>
