@@ -249,13 +249,18 @@ function customerQuickSave(){
     .then(data => {
       const select = document.querySelector('select[name="cust_id"]');
       if (select) {
+        // 他画面(請求書作成等)から開いた場合は、顧客選択に新規顧客を追加して選択状態にする
         const option = document.createElement('option');
         option.value = data.id;
         option.textContent = data.name;
         option.selected = true;
         select.appendChild(option);
+        closeModal();
+      } else {
+        // 顧客一覧から開いた場合は、モーダルを閉じて一覧を再読み込みする
+        closeModal();
+        location.reload();
       }
-      closeModal();
     })
     .catch(error => alert(error.message));
 }

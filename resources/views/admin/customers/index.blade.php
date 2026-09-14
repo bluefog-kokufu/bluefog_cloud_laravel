@@ -16,7 +16,7 @@
         <button class="btn small" type="submit">検索</button>
         <button class="btn ghost small" type="button" onclick="location.href='{{ route('customer') }}'">リセット</button>
         <span style="flex:1"></span>
-        <a class="btn ghost small" href="{{ route('customer.create') }}">顧客作成</a>
+        <button class="btn ghost small" type="button" onclick="customerQuickCreate()">顧客作成</button>
     </form>
 
     <form method="POST" action="{{ route('customer.import') }}" enctype="multipart/form-data" class="csvbar">
