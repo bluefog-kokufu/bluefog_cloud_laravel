@@ -172,7 +172,7 @@ function customerEditShowErrors(errors){
   });
 }
 function customerDelete(id){
-  if (!confirm('この顧客を削除しますか？')) {
+  if (!confirm('この顧客を削除しますか?関連する取引の表示名は「(削除済み)」になります。')) {
     return;
   }
   const token = document.querySelector('meta[name="csrf-token"]')?.content;

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @php
-$items = old('items', $paymentNotice?->items ?? [['date' => now()->format('Y-m-d'), 'item' => '', 'price' => '', 'unit' => '式', 'qty' => 1, 'tax' => '10%']]);
+$items = old('items', $paymentNotice?->items ?? []);
 $rowCount = count($items);
 @endphp
 
@@ -79,6 +79,11 @@ $rowCount = count($items);
                         </tr>
                     </thead>
                     <tbody id="paynoticeItemsBody">
+                        @if (empty($items))
+                        <tr class="paynotice-empty">
+                            <td colspan="8" style="text-align:center">明細がありません。「明細を新規登録」で追加してください。</td>
+                        </tr>
+                        @else
                         @foreach ($items as $i => $item)
                         <tr>
                             <td><input type="date" name="items[{{ $i }}][date]" value="{{ $item['date'] ?? '' }}" style="width:140px" oninput="paynoticeRowRecalc(this)"></td>
@@ -97,6 +102,7 @@ $rowCount = count($items);
                             <td><button type="button" class="icon-btn" onclick="paynoticeItemDel(this)">🗑</button></td>
                         </tr>
                         @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
