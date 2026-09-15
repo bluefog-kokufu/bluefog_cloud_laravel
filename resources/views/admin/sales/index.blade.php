@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / 受注取引一覧</div>
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / 取引一覧</div>
 @if (session('status'))
 <div class="card" style="background:#e8f8ee; color:#1d7a45; margin-bottom:12px">{{ session('status') }}</div>
 @endif
 @if (session('error'))
 <div class="card" style="background:#fff0f0; color:#b22; margin-bottom:12px">{{ session('error') }}</div>
 @endif
-<h2 class="pagettl">受注取引一覧</h2>
+<h2 class="pagettl">取引一覧(売上)</h2>
 @include('admin.partials.error-summary')
 <div class="panel">
     <form method="GET" action="{{ route('sale') }}" class="toolbar" style="gap:8px; align-items:center;">
@@ -118,7 +118,7 @@
     @endif
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         var tpl = document.getElementById('reopenSaleForm');
         if (tpl) {
             openModal(tpl.innerHTML);
