@@ -6,8 +6,8 @@ $rowCount = count($items);
 @endphp
 
 @section('content')
-<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> / <a href="{{ route('paynotice') }}">支払通知書一覧</a> / 支払通知書{{ $paymentNotice ? '編集' : '作成' }}</div>
-<h2 class="pagettl">支払通知書{{ $paymentNotice ? '編集' : '作成' }}</h2>
+<div class="crumb"><a href="{{ route('dashboard') }}">ホーム</a> /支払通知書{{ $paymentNotice ? '編集' : '作成' }}</div>
+<h2 class="pagettl">←支払通知書{{ $paymentNotice ? '編集' : '作成' }}</h2>
 @include('admin.partials.error-summary')
 <div class="panel">
     <form method="POST" action="{{ $paymentNotice ? route('paynotice.update', $paymentNotice) : route('paynotice.store') }}">
