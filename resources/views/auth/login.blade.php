@@ -36,7 +36,7 @@
                 </div>
                 -->
 
-                <button class="btn block" type="submit">ログイン</button>
+                <button class="btn block" type="submit">ログインする</button>
                 <div class="login-links">
                     <a href="{{ route('password.forgot') }}">パスワードを忘れた方</a>
                 </div>
